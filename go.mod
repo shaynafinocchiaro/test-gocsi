@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/akutz/gosync v0.1.0
 	github.com/akutz/memconn v0.1.0
-	github.com/container-storage-interface/spec v1.5.0
+	github.com/container-storage-interface/spec v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/onsi/ginkgo v1.4.0
 	github.com/onsi/gomega v1.3.0
