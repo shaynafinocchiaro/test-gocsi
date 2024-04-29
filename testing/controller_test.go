@@ -39,7 +39,7 @@ var _ = Describe("Controller", func() {
 		params   map[string]string
 		// userCreds map[string]string
 		pubInfo map[string]string
-		nodeId  string
+		nodeId  string //nolint:revive
 	)
 	BeforeEach(func() {
 		ctx = context.Background()

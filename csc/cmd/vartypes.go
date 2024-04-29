@@ -67,7 +67,7 @@ func (s *volumeCapabilitySliceArg) Set(val string) error {
 		return fmt.Errorf("invalid volume capability: %s", val)
 	}
 
-	var cap csi.VolumeCapability //nolint:revive,redefines-builtin-id
+	var cap csi.VolumeCapability //nolint:revive
 
 	szMode := data[0]
 	if i, ok := csi.VolumeCapability_AccessMode_Mode_value[szMode]; ok {
