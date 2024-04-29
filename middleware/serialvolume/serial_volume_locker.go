@@ -101,7 +101,7 @@ func (i *interceptor) handle(
 func (i *interceptor) controllerPublishVolume(
 	ctx context.Context,
 	req *csi.ControllerPublishVolumeRequest,
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithID(ctx, req.VolumeId)
@@ -122,7 +122,7 @@ func (i *interceptor) controllerPublishVolume(
 func (i *interceptor) controllerUnpublishVolume(
 	ctx context.Context,
 	req *csi.ControllerUnpublishVolumeRequest,
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithID(ctx, req.VolumeId)
@@ -143,7 +143,7 @@ func (i *interceptor) controllerUnpublishVolume(
 func (i *interceptor) createVolume(
 	ctx context.Context,
 	req *csi.CreateVolumeRequest,
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithName(ctx, req.Name)
@@ -164,7 +164,7 @@ func (i *interceptor) createVolume(
 func (i *interceptor) deleteVolume(
 	ctx context.Context,
 	req *csi.DeleteVolumeRequest,
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithID(ctx, req.VolumeId)
@@ -185,7 +185,7 @@ func (i *interceptor) deleteVolume(
 func (i *interceptor) nodePublishVolume(
 	ctx context.Context,
 	req *csi.NodePublishVolumeRequest,
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithID(ctx, req.VolumeId)
@@ -206,7 +206,7 @@ func (i *interceptor) nodePublishVolume(
 func (i *interceptor) nodeUnpublishVolume(
 	ctx context.Context,
 	req *csi.NodeUnpublishVolumeRequest,
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithID(ctx, req.VolumeId)
