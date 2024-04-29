@@ -27,7 +27,6 @@ USAGE
 `,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		req := csi.ControllerExpandVolumeRequest{
 			Secrets: root.secrets,
 		}

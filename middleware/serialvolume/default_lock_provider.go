@@ -15,8 +15,8 @@ type defaultLockProvider struct {
 }
 
 func (i *defaultLockProvider) GetLockWithID(
-	ctx context.Context, id string) (gosync.TryLocker, error) {
-
+	ctx context.Context, id string,
+) (gosync.TryLocker, error) {
 	i.volIDLocksL.Lock()
 	defer i.volIDLocksL.Unlock()
 	lock := i.volIDLocks[id]
@@ -28,8 +28,8 @@ func (i *defaultLockProvider) GetLockWithID(
 }
 
 func (i *defaultLockProvider) GetLockWithName(
-	ctx context.Context, name string) (gosync.TryLocker, error) {
-
+	ctx context.Context, name string,
+) (gosync.TryLocker, error) {
 	i.volNameLocksL.Lock()
 	defer i.volNameLocksL.Unlock()
 	lock := i.volNameLocks[name]

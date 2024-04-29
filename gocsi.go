@@ -34,8 +34,8 @@ import (
 func Run(
 	ctx context.Context,
 	appName, appDescription, appUsage string,
-	sp StoragePluginProvider) {
-
+	sp StoragePluginProvider,
+) {
 	// Check for the debug value.
 	if v, ok := csictx.LookupEnv(ctx, EnvVarDebug); ok {
 		/* #nosec G104 */
@@ -138,7 +138,6 @@ func Run(
 // StoragePluginProvider is able to serve a gRPC endpoint that provides
 // the CSI services: Controller, Identity, Node.
 type StoragePluginProvider interface {
-
 	// Serve accepts incoming connections on the listener lis, creating
 	// a new ServerTransport and service goroutine for each. The service
 	// goroutine read gRPC requests and then call the registered handlers
@@ -354,8 +353,8 @@ func (sp *StoragePlugin) GracefulStop(ctx context.Context) {
 const netUnix = "unix"
 
 func (sp *StoragePlugin) initEndpointPerms(
-	ctx context.Context, lis net.Listener) error {
-
+	ctx context.Context, lis net.Listener,
+) error {
 	if lis.Addr().Network() != netUnix {
 		return nil
 	}
@@ -385,8 +384,8 @@ func (sp *StoragePlugin) initEndpointPerms(
 }
 
 func (sp *StoragePlugin) initEndpointOwner(
-	ctx context.Context, lis net.Listener) error {
-
+	ctx context.Context, lis net.Listener,
+) error {
 	if lis.Addr().Network() != netUnix {
 		return nil
 	}

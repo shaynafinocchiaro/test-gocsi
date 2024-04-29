@@ -14,24 +14,24 @@ import (
 func (s *service) NodeStageVolume(
 	ctx context.Context,
 	req *csi.NodeStageVolumeRequest) (
-	*csi.NodeStageVolumeResponse, error) {
-
+	*csi.NodeStageVolumeResponse, error,
+) {
 	return nil, status.Error(codes.Unimplemented, "")
 }
 
 func (s *service) NodeUnstageVolume(
 	ctx context.Context,
 	req *csi.NodeUnstageVolumeRequest) (
-	*csi.NodeUnstageVolumeResponse, error) {
-
+	*csi.NodeUnstageVolumeResponse, error,
+) {
 	return nil, status.Error(codes.Unimplemented, "")
 }
 
 func (s *service) NodePublishVolume(
 	ctx context.Context,
 	req *csi.NodePublishVolumeRequest) (
-	*csi.NodePublishVolumeResponse, error) {
-
+	*csi.NodePublishVolumeResponse, error,
+) {
 	device, ok := req.PublishContext["device"]
 	if !ok {
 		return nil, status.Error(
@@ -73,8 +73,8 @@ func (s *service) NodePublishVolume(
 func (s *service) NodeUnpublishVolume(
 	ctx context.Context,
 	req *csi.NodeUnpublishVolumeRequest) (
-	*csi.NodeUnpublishVolumeResponse, error) {
-
+	*csi.NodeUnpublishVolumeResponse, error,
+) {
 	s.volsRWL.Lock()
 	defer s.volsRWL.Unlock()
 
@@ -102,8 +102,8 @@ func (s *service) NodeUnpublishVolume(
 func (s *service) NodeGetInfo(
 	ctx context.Context,
 	req *csi.NodeGetInfoRequest) (
-	*csi.NodeGetInfoResponse, error) {
-
+	*csi.NodeGetInfoResponse, error,
+) {
 	return &csi.NodeGetInfoResponse{
 		NodeId: s.nodeID,
 	}, nil
@@ -112,16 +112,16 @@ func (s *service) NodeGetInfo(
 func (s *service) NodeGetCapabilities(
 	ctx context.Context,
 	req *csi.NodeGetCapabilitiesRequest) (
-	*csi.NodeGetCapabilitiesResponse, error) {
-
+	*csi.NodeGetCapabilitiesResponse, error,
+) {
 	return &csi.NodeGetCapabilitiesResponse{}, nil
 }
 
 func (s *service) NodeGetVolumeStats(
 	ctx context.Context,
 	req *csi.NodeGetVolumeStatsRequest) (
-	*csi.NodeGetVolumeStatsResponse, error) {
-
+	*csi.NodeGetVolumeStatsResponse, error,
+) {
 	var f *csi.Volume
 	for _, v := range s.vols {
 		if v.VolumeId == req.VolumeId {
@@ -148,7 +148,7 @@ func (s *service) NodeGetVolumeStats(
 func (s *service) NodeExpandVolume(
 	ctx context.Context,
 	req *csi.NodeExpandVolumeRequest) (
-	*csi.NodeExpandVolumeResponse, error) {
-
+	*csi.NodeExpandVolumeResponse, error,
+) {
 	return nil, status.Error(codes.Unimplemented, "")
 }

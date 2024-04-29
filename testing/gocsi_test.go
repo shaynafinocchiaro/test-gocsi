@@ -17,7 +17,6 @@ import (
 )
 
 func startMockServer(ctx context.Context) (*grpc.ClientConn, func(), error) {
-
 	// Create a new Mock SP instance and serve it with a piped connection.
 	sp := provider.New()
 	lis, err := memconn.Listen("memu", "csi-test")
@@ -79,10 +78,12 @@ func (m *grpcErrorMatcher) Match(actual interface{}) (bool, error) {
 
 	return true, nil
 }
+
 func (m *grpcErrorMatcher) FailureMessage(actual interface{}) string {
 	return fmt.Sprintf(
 		"Expected\n\t%#v\nto be equal to\n\t%#v", actual, m.exp)
 }
+
 func (m *grpcErrorMatcher) NegatedFailureMessage(actual interface{}) string {
 	return fmt.Sprintf(
 		"Expected\n\t%#v\nnot to be equal to\n\t%#v", actual, m.exp)
@@ -100,5 +101,6 @@ func ΣCM(c codes.Code, m string, args ...interface{}) gomegaTypes.GomegaMatcher
 
 const string128 = "0000000000000000000000000000000000000000000000000000000000" +
 	"0000000000000000000000000000000000000000000000000000000000000000000000"
+
 const string129 = "0000000000000000000000000000000000000000000000000000000000" +
 	"00000000000000000000000000000000000000000000000000000000000000000000000"

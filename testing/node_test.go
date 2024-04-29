@@ -102,7 +102,6 @@ var _ = Describe("Node", func() {
 	})
 
 	Describe("Publication", func() {
-
 		device := "/dev/mock"
 		targetPath := "/mnt/mock"
 		mntPathKey := path.Join(service.Name, targetPath)

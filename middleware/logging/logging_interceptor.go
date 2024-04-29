@@ -62,16 +62,16 @@ type interceptor struct {
 // NewServerLogger returns a new UnaryServerInterceptor that can be
 // configured to log both request and response data.
 func NewServerLogger(
-	opts ...Option) grpc.UnaryServerInterceptor {
-
+	opts ...Option,
+) grpc.UnaryServerInterceptor {
 	return newLoggingInterceptor(opts...).handleServer
 }
 
 // NewClientLogger provides a UnaryClientInterceptor that can be
 // configured to log both request and response data.
 func NewClientLogger(
-	opts ...Option) grpc.UnaryClientInterceptor {
-
+	opts ...Option,
+) grpc.UnaryClientInterceptor {
 	return newLoggingInterceptor(opts...).handleClient
 }
 
@@ -87,8 +87,8 @@ func (s *interceptor) handleServer(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (interface{}, error) {
-
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
 	return s.handle(ctx, info.FullMethod, req, func() (interface{}, error) {
 		return handler(ctx, req)
 	})
@@ -100,8 +100,8 @@ func (s *interceptor) handleClient(
 	req, rep interface{},
 	cc *grpc.ClientConn,
 	invoker grpc.UnaryInvoker,
-	opts ...grpc.CallOption) error {
-
+	opts ...grpc.CallOption,
+) error {
 	_, err := s.handle(ctx, method, req, func() (interface{}, error) {
 		return rep, invoker(ctx, method, req, rep, cc, opts...)
 	})
@@ -112,8 +112,8 @@ func (s *interceptor) handle(
 	ctx context.Context,
 	method string,
 	req interface{},
-	next func() (interface{}, error)) (rep interface{}, failed error) {
-
+	next func() (interface{}, error),
+) (rep interface{}, failed error) {
 	// If the request is nil then pass control to the next handler
 	// in the chain.
 	if req == nil {

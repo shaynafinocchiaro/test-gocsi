@@ -31,7 +31,6 @@ USAGE
 `,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		req := csi.NodePublishVolumeRequest{
 			StagingTargetPath: nodePublishVolume.stagingTargetPath,
 			TargetPath:        nodePublishVolume.targetPath,

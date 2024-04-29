@@ -26,8 +26,8 @@ func New() gocsi.StoragePluginProvider {
 		BeforeServe: func(
 			ctx context.Context,
 			sp *gocsi.StoragePlugin,
-			lis net.Listener) error {
-
+			lis net.Listener,
+		) error {
 			log.WithField("service", service.Name).Debug("BeforeServe")
 			return nil
 		},

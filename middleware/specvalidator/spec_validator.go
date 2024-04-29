@@ -149,16 +149,16 @@ type interceptor struct {
 // NewServerSpecValidator returns a new UnaryServerInterceptor that validates
 // server request and response data against the CSI specification.
 func NewServerSpecValidator(
-	opts ...Option) grpc.UnaryServerInterceptor {
-
+	opts ...Option,
+) grpc.UnaryServerInterceptor {
 	return newSpecValidator(opts...).handleServer
 }
 
 // NewClientSpecValidator provides a UnaryClientInterceptor that validates
 // client request and response data against the CSI specification.
 func NewClientSpecValidator(
-	opts ...Option) grpc.UnaryClientInterceptor {
-
+	opts ...Option,
+) grpc.UnaryClientInterceptor {
 	return newSpecValidator(opts...).handleClient
 }
 
@@ -174,8 +174,8 @@ func (s *interceptor) handleServer(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (interface{}, error) {
-
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
 	return s.handle(ctx, info.FullMethod, req, func() (interface{}, error) {
 		return handler(ctx, req)
 	})
@@ -187,8 +187,8 @@ func (s *interceptor) handleClient(
 	req, rep interface{},
 	cc *grpc.ClientConn,
 	invoker grpc.UnaryInvoker,
-	opts ...grpc.CallOption) error {
-
+	opts ...grpc.CallOption,
+) error {
 	_, err := s.handle(ctx, method, req, func() (interface{}, error) {
 		return rep, invoker(ctx, method, req, rep, cc, opts...)
 	})
@@ -199,8 +199,8 @@ func (s *interceptor) handle(
 	ctx context.Context,
 	method string,
 	req interface{},
-	next func() (interface{}, error)) (interface{}, error) {
-
+	next func() (interface{}, error),
+) (interface{}, error) {
 	// If the request is nil then pass control to the next handler
 	// in the chain.
 	if req == nil {
@@ -218,7 +218,6 @@ func (s *interceptor) handle(
 	// server-side this could possibly invoke additional interceptors or
 	// the RPC. On the client side this invokes the RPC.
 	rep, err := next()
-
 	if err != nil {
 		return nil, err
 	}
@@ -280,8 +279,8 @@ type interceptorHasPublishContext interface {
 func (s *interceptor) validateRequest(
 	ctx context.Context,
 	method string,
-	req interface{}) error {
-
+	req interface{},
+) error {
 	if req == nil {
 		return nil
 	}
@@ -365,8 +364,8 @@ func (s *interceptor) validateRequest(
 func (s *interceptor) validateResponse(
 	ctx context.Context,
 	method string,
-	rep interface{}) error {
-
+	rep interface{},
+) error {
 	if utils.IsNilResponse(rep) {
 		return status.Error(codes.Internal, "nil response")
 	}
@@ -409,8 +408,8 @@ func (s *interceptor) validateResponse(
 
 func (s *interceptor) validateCreateVolumeRequest(
 	ctx context.Context,
-	req csi.CreateVolumeRequest) error {
-
+	req csi.CreateVolumeRequest,
+) error {
 	if req.Name == "" {
 		return status.Error(
 			codes.InvalidArgument, "required: Name")
@@ -427,8 +426,8 @@ func (s *interceptor) validateCreateVolumeRequest(
 
 func (s *interceptor) validateDeleteVolumeRequest(
 	ctx context.Context,
-	req csi.DeleteVolumeRequest) error {
-
+	req csi.DeleteVolumeRequest,
+) error {
 	if s.opts.requiresCtlrDelVolSecrets {
 		if len(req.Secrets) == 0 {
 			return status.Error(
@@ -441,8 +440,8 @@ func (s *interceptor) validateDeleteVolumeRequest(
 
 func (s *interceptor) validateControllerPublishVolumeRequest(
 	ctx context.Context,
-	req csi.ControllerPublishVolumeRequest) error {
-
+	req csi.ControllerPublishVolumeRequest,
+) error {
 	if s.opts.requiresCtlrPubVolSecrets {
 		if len(req.Secrets) == 0 {
 			return status.Error(
@@ -460,8 +459,8 @@ func (s *interceptor) validateControllerPublishVolumeRequest(
 
 func (s *interceptor) validateControllerUnpublishVolumeRequest(
 	ctx context.Context,
-	req csi.ControllerUnpublishVolumeRequest) error {
-
+	req csi.ControllerUnpublishVolumeRequest,
+) error {
 	if s.opts.requiresCtlrUnpubVolSecrets {
 		if len(req.Secrets) == 0 {
 			return status.Error(
@@ -474,22 +473,22 @@ func (s *interceptor) validateControllerUnpublishVolumeRequest(
 
 func (s *interceptor) validateValidateVolumeCapabilitiesRequest(
 	ctx context.Context,
-	req csi.ValidateVolumeCapabilitiesRequest) error {
-
+	req csi.ValidateVolumeCapabilitiesRequest,
+) error {
 	return validateVolumeCapabilitiesArg(req.VolumeCapabilities, true)
 }
 
 func (s *interceptor) validateGetCapacityRequest(
 	ctx context.Context,
-	req csi.GetCapacityRequest) error {
-
+	req csi.GetCapacityRequest,
+) error {
 	return validateVolumeCapabilitiesArg(req.VolumeCapabilities, false)
 }
 
 func (s *interceptor) validateNodeStageVolumeRequest(
 	ctx context.Context,
-	req csi.NodeStageVolumeRequest) error {
-
+	req csi.NodeStageVolumeRequest,
+) error {
 	if req.StagingTargetPath == "" {
 		return status.Error(
 			codes.InvalidArgument, "required: StagingTargetPath")
@@ -507,8 +506,8 @@ func (s *interceptor) validateNodeStageVolumeRequest(
 
 func (s *interceptor) validateNodeUnstageVolumeRequest(
 	ctx context.Context,
-	req csi.NodeUnstageVolumeRequest) error {
-
+	req csi.NodeUnstageVolumeRequest,
+) error {
 	if req.StagingTargetPath == "" {
 		return status.Error(
 			codes.InvalidArgument, "required: StagingTargetPath")
@@ -519,8 +518,8 @@ func (s *interceptor) validateNodeUnstageVolumeRequest(
 
 func (s *interceptor) validateNodePublishVolumeRequest(
 	ctx context.Context,
-	req csi.NodePublishVolumeRequest) error {
-
+	req csi.NodePublishVolumeRequest,
+) error {
 	if s.opts.requiresStagingTargetPath && req.StagingTargetPath == "" {
 		return status.Error(
 			codes.InvalidArgument, "required: StagingTargetPath")
@@ -543,8 +542,8 @@ func (s *interceptor) validateNodePublishVolumeRequest(
 
 func (s *interceptor) validateNodeUnpublishVolumeRequest(
 	ctx context.Context,
-	req csi.NodeUnpublishVolumeRequest) error {
-
+	req csi.NodeUnpublishVolumeRequest,
+) error {
 	if req.TargetPath == "" {
 		return status.Error(
 			codes.InvalidArgument, "required: TargetPath")
@@ -555,8 +554,8 @@ func (s *interceptor) validateNodeUnpublishVolumeRequest(
 
 func (s *interceptor) validateCreateVolumeResponse(
 	ctx context.Context,
-	rep csi.CreateVolumeResponse) error {
-
+	rep csi.CreateVolumeResponse,
+) error {
 	if rep.Volume == nil {
 		return status.Error(codes.Internal, "nil: Volume")
 	}
@@ -575,8 +574,8 @@ func (s *interceptor) validateCreateVolumeResponse(
 
 func (s *interceptor) validateControllerPublishVolumeResponse(
 	ctx context.Context,
-	rep csi.ControllerPublishVolumeResponse) error {
-
+	rep csi.ControllerPublishVolumeResponse,
+) error {
 	if s.opts.requiresPubContext && len(rep.PublishContext) == 0 {
 		return status.Error(codes.Internal, "empty: PublishContext")
 	}
@@ -585,8 +584,8 @@ func (s *interceptor) validateControllerPublishVolumeResponse(
 
 func (s *interceptor) validateListVolumesResponse(
 	ctx context.Context,
-	rep csi.ListVolumesResponse) error {
-
+	rep csi.ListVolumesResponse,
+) error {
 	for i, e := range rep.Entries {
 		vol := e.Volume
 		if vol == nil {
@@ -611,8 +610,8 @@ func (s *interceptor) validateListVolumesResponse(
 
 func (s *interceptor) validateControllerGetCapabilitiesResponse(
 	ctx context.Context,
-	rep csi.ControllerGetCapabilitiesResponse) error {
-
+	rep csi.ControllerGetCapabilitiesResponse,
+) error {
 	if rep.Capabilities != nil && len(rep.Capabilities) == 0 {
 		return status.Error(codes.Internal, "non-nil, empty: Capabilities")
 	}
@@ -627,8 +626,8 @@ const (
 
 func (s *interceptor) validateGetPluginInfoResponse(
 	ctx context.Context,
-	rep csi.GetPluginInfoResponse) error {
-
+	rep csi.GetPluginInfoResponse,
+) error {
 	log.Debug("validateGetPluginInfoResponse: enter")
 
 	if rep.Name == "" {
@@ -669,7 +668,8 @@ func (s *interceptor) validateGetPluginInfoResponse(
 
 func (s *interceptor) validateNodeGetInfoResponse(
 	ctx context.Context,
-	rep csi.NodeGetInfoResponse) error {
+	rep csi.NodeGetInfoResponse,
+) error {
 	if rep.NodeId == "" {
 		return status.Error(codes.Internal, "empty: NodeID")
 	}
@@ -679,8 +679,8 @@ func (s *interceptor) validateNodeGetInfoResponse(
 
 func (s *interceptor) validateNodeGetCapabilitiesResponse(
 	ctx context.Context,
-	rep csi.NodeGetCapabilitiesResponse) error {
-
+	rep csi.NodeGetCapabilitiesResponse,
+) error {
 	if rep.Capabilities != nil && len(rep.Capabilities) == 0 {
 		return status.Error(codes.Internal, "non-nil, empty: Capabilities")
 	}
@@ -689,8 +689,8 @@ func (s *interceptor) validateNodeGetCapabilitiesResponse(
 
 func validateVolumeCapabilityArg(
 	volCap *csi.VolumeCapability,
-	required bool) error {
-
+	required bool,
+) error {
 	if required && volCap == nil {
 		return status.Error(codes.InvalidArgument, "required: VolumeCapability")
 	}
@@ -725,8 +725,8 @@ func validateVolumeCapabilityArg(
 
 func validateVolumeCapabilitiesArg(
 	volCaps []*csi.VolumeCapability,
-	required bool) error {
-
+	required bool,
+) error {
 	if len(volCaps) == 0 {
 		if required {
 			return status.Error(
@@ -753,7 +753,6 @@ func validateVolumeCapabilitiesArg(
 				return status.Errorf(
 					codes.InvalidArgument,
 					"required: VolumeCapabilities[%d].AccessType.Block", i)
-
 			}
 		case *csi.VolumeCapability_Mount:
 			if tatype.Mount == nil {
@@ -772,11 +771,11 @@ func validateVolumeCapabilitiesArg(
 }
 
 const (
-	//Increasing maxFieldString to support k8s 1.24 strings such as 'path' 'stagingTargetPath' 'targetpath' 'mountpath' etc.
+	// Increasing maxFieldString to support k8s 1.24 strings such as 'path' 'stagingTargetPath' 'targetpath' 'mountpath' etc.
 	maxFieldString = 192
 	maxFieldMap    = 4096
 	maxFieldNodeID = 256
-	//MaxPathLimit parameter is used to limit the length of the path and is configurable.
+	// MaxPathLimit parameter is used to limit the length of the path and is configurable.
 	maxPathLimit = EnvVarMaxPathLimit
 )
 

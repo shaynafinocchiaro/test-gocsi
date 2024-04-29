@@ -109,7 +109,7 @@ func (s *service) findVolNoLock(k, v string) (volIdx int, volInfo csi.Volume) {
 }
 
 func (s *service) findVolByName(
-	ctx context.Context, name string) (int, csi.Volume) {
-
+	ctx context.Context, name string,
+) (int, csi.Volume) {
 	return s.findVol("name", name)
 }

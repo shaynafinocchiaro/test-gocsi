@@ -36,7 +36,7 @@ func argName(cmd *cobra.Command) string {
 		return "VOLUME_ID [VOLUME_ID...]"
 	case RootCmd, controllerCmd, identityCmd, nodeCmd:
 		return "CMD"
-		//case docCmd:
+		// case docCmd:
 		//	return "DIR"
 	}
 

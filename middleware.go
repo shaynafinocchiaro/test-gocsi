@@ -18,7 +18,6 @@ import (
 )
 
 func (sp *StoragePlugin) initInterceptors(ctx context.Context) {
-
 	sp.Interceptors = append(sp.Interceptors, sp.injectContext)
 	log.Debug("enabled context injector")
 
@@ -226,8 +225,8 @@ func (sp *StoragePlugin) injectContext(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (interface{}, error) {
-
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
 	return handler(csictx.WithLookupEnv(ctx, sp.lookupEnv), req)
 }
 
@@ -235,8 +234,8 @@ func (sp *StoragePlugin) getPluginInfo(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (interface{}, error) {
-
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
 	if sp.pluginInfo.Name == "" {
 		return handler(ctx, req)
 	}

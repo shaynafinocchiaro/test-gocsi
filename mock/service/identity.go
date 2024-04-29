@@ -10,8 +10,8 @@ import (
 func (s *service) Probe(
 	ctx context.Context,
 	req *csi.ProbeRequest) (
-	*csi.ProbeResponse, error) {
-
+	*csi.ProbeResponse, error,
+) {
 	return &csi.ProbeResponse{
 		Ready: &wrappers.BoolValue{Value: true},
 	}, nil
@@ -20,8 +20,8 @@ func (s *service) Probe(
 func (s *service) GetPluginInfo(
 	ctx context.Context,
 	req *csi.GetPluginInfoRequest) (
-	*csi.GetPluginInfoResponse, error) {
-
+	*csi.GetPluginInfoResponse, error,
+) {
 	return &csi.GetPluginInfoResponse{
 		Name:          Name,
 		VendorVersion: VendorVersion,
@@ -32,8 +32,8 @@ func (s *service) GetPluginInfo(
 func (s *service) GetPluginCapabilities(
 	ctx context.Context,
 	req *csi.GetPluginCapabilitiesRequest) (
-	*csi.GetPluginCapabilitiesResponse, error) {
-
+	*csi.GetPluginCapabilitiesResponse, error,
+) {
 	return &csi.GetPluginCapabilitiesResponse{
 		Capabilities: []*csi.PluginCapability{
 			{

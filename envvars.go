@@ -271,7 +271,6 @@ const (
 )
 
 func (sp *StoragePlugin) initEnvVars(ctx context.Context) {
-
 	// Copy the environment variables from the public EnvVar
 	// string slice to the private envVars map for quick lookup.
 	sp.envVars = map[string]string{}

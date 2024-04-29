@@ -51,7 +51,6 @@ func WithLockProvider(p mwtypes.VolumeLockerProvider) Option {
 //   - NodePublishVolume
 //   - NodeUnpublishVolume
 func New(opts ...Option) grpc.UnaryServerInterceptor {
-
 	i := &interceptor{}
 
 	// Configure the interceptor's options.
@@ -79,8 +78,8 @@ func (i *interceptor) handle(
 	ctx xctx.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (interface{}, error) {
-
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
 	switch treq := req.(type) {
 	case *csi.ControllerPublishVolumeRequest:
 		return i.controllerPublishVolume(ctx, treq, info, handler)
@@ -103,8 +102,8 @@ func (i *interceptor) controllerPublishVolume(
 	ctx context.Context,
 	req *csi.ControllerPublishVolumeRequest,
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (res interface{}, resErr error) {
-
+	handler grpc.UnaryHandler,
+) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithID(ctx, req.VolumeId)
 	if err != nil {
 		return nil, err
@@ -124,8 +123,8 @@ func (i *interceptor) controllerUnpublishVolume(
 	ctx context.Context,
 	req *csi.ControllerUnpublishVolumeRequest,
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (res interface{}, resErr error) {
-
+	handler grpc.UnaryHandler,
+) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithID(ctx, req.VolumeId)
 	if err != nil {
 		return nil, err
@@ -145,8 +144,8 @@ func (i *interceptor) createVolume(
 	ctx context.Context,
 	req *csi.CreateVolumeRequest,
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (res interface{}, resErr error) {
-
+	handler grpc.UnaryHandler,
+) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithName(ctx, req.Name)
 	if err != nil {
 		return nil, err
@@ -166,8 +165,8 @@ func (i *interceptor) deleteVolume(
 	ctx context.Context,
 	req *csi.DeleteVolumeRequest,
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (res interface{}, resErr error) {
-
+	handler grpc.UnaryHandler,
+) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithID(ctx, req.VolumeId)
 	if err != nil {
 		return nil, err
@@ -187,8 +186,8 @@ func (i *interceptor) nodePublishVolume(
 	ctx context.Context,
 	req *csi.NodePublishVolumeRequest,
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (res interface{}, resErr error) {
-
+	handler grpc.UnaryHandler,
+) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithID(ctx, req.VolumeId)
 	if err != nil {
 		return nil, err
@@ -208,8 +207,8 @@ func (i *interceptor) nodeUnpublishVolume(
 	ctx context.Context,
 	req *csi.NodeUnpublishVolumeRequest,
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (res interface{}, resErr error) {
-
+	handler grpc.UnaryHandler,
+) (res interface{}, resErr error) {
 	lock, err := i.opts.locker.GetLockWithID(ctx, req.VolumeId)
 	if err != nil {
 		return nil, err
