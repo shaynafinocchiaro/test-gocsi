@@ -46,7 +46,7 @@ func (s *service) CreateVolume(
 }
 
 func (s *service) DeleteVolume(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.DeleteVolumeRequest) (
 	*csi.DeleteVolumeResponse, error,
 ) {
@@ -70,7 +70,7 @@ func (s *service) DeleteVolume(
 }
 
 func (s *service) ControllerPublishVolume(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ControllerPublishVolumeRequest) (
 	*csi.ControllerPublishVolumeResponse, error,
 ) {
@@ -109,7 +109,7 @@ func (s *service) ControllerPublishVolume(
 }
 
 func (s *service) ControllerUnpublishVolume(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ControllerUnpublishVolumeRequest) (
 	*csi.ControllerUnpublishVolumeResponse, error,
 ) {
@@ -150,7 +150,7 @@ func (s *service) ControllerUnpublishVolume(
 }
 
 func (s *service) ValidateVolumeCapabilities(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ValidateVolumeCapabilitiesRequest) (
 	*csi.ValidateVolumeCapabilitiesResponse, error,
 ) {
@@ -164,7 +164,7 @@ func (s *service) ValidateVolumeCapabilities(
 }
 
 func (s *service) ListVolumes(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ListVolumesRequest) (
 	*csi.ListVolumesResponse, error,
 ) {
@@ -239,8 +239,8 @@ func (s *service) ListVolumes(
 }
 
 func (s *service) GetCapacity(
-	ctx context.Context,
-	req *csi.GetCapacityRequest) (
+	_ context.Context,
+	_ *csi.GetCapacityRequest) (
 	*csi.GetCapacityResponse, error,
 ) {
 	return &csi.GetCapacityResponse{
@@ -249,8 +249,8 @@ func (s *service) GetCapacity(
 }
 
 func (s *service) ControllerGetCapabilities(
-	ctx context.Context,
-	req *csi.ControllerGetCapabilitiesRequest) (
+	_ context.Context,
+	_ *csi.ControllerGetCapabilitiesRequest) (
 	*csi.ControllerGetCapabilitiesResponse, error,
 ) {
 	return &csi.ControllerGetCapabilitiesResponse{
@@ -302,7 +302,7 @@ func (s *service) ControllerGetCapabilities(
 }
 
 func (s *service) CreateSnapshot(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.CreateSnapshotRequest) (
 	*csi.CreateSnapshotResponse, error,
 ) {
@@ -317,7 +317,7 @@ func (s *service) CreateSnapshot(
 }
 
 func (s *service) DeleteSnapshot(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.DeleteSnapshotRequest) (
 	*csi.DeleteSnapshotResponse, error,
 ) {
@@ -329,7 +329,7 @@ func (s *service) DeleteSnapshot(
 }
 
 func (s *service) ListSnapshots(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ListSnapshotsRequest) (
 	*csi.ListSnapshotsResponse, error,
 ) {
@@ -407,7 +407,7 @@ func (s *service) ListSnapshots(
 }
 
 func (s *service) ControllerExpandVolume(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ControllerExpandVolumeRequest) (
 	*csi.ControllerExpandVolumeResponse, error,
 ) {
@@ -443,8 +443,8 @@ func (s *service) ControllerExpandVolume(
 }
 
 func (s *service) ControllerGetVolume(
-	ctx context.Context,
-	req *csi.ControllerGetVolumeRequest) (
+	_ context.Context,
+	_ *csi.ControllerGetVolumeRequest) (
 	*csi.ControllerGetVolumeResponse, error,
 ) {
 	return nil, status.Error(codes.Unimplemented, "")

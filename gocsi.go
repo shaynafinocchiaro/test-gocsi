@@ -40,9 +40,9 @@ func Run(
 	if v, ok := csictx.LookupEnv(ctx, EnvVarDebug); ok {
 		/* #nosec G104 */
 		if ok, _ := strconv.ParseBool(v); ok {
-			csictx.Setenv(ctx, EnvVarLogLevel, "debug")
-			csictx.Setenv(ctx, EnvVarReqLogging, "true")
-			csictx.Setenv(ctx, EnvVarRepLogging, "true")
+			_ = csictx.Setenv(ctx, EnvVarLogLevel, "debug")
+			_ = csictx.Setenv(ctx, EnvVarReqLogging, "true")
+			_ = csictx.Setenv(ctx, EnvVarRepLogging, "true")
 		}
 	}
 
@@ -113,7 +113,7 @@ func Run(
 			/* #nosec G104 */
 			if l.Addr().Network() == netUnix {
 				sockFile := l.Addr().String()
-				os.RemoveAll(sockFile)
+				_ = os.RemoveAll(sockFile)
 				log.WithField("path", sockFile).Info("removed sock file")
 			}
 		})
@@ -329,7 +329,7 @@ func (sp *StoragePlugin) Serve(ctx context.Context, lis net.Listener) error {
 // It cancels all active RPCs on the server side and the corresponding
 // pending RPCs on the client side will get notified by connection
 // errors.
-func (sp *StoragePlugin) Stop(ctx context.Context) {
+func (sp *StoragePlugin) Stop(_ context.Context) {
 	sp.stopOnce.Do(func() {
 		if sp.server != nil {
 			sp.server.Stop()
@@ -341,7 +341,7 @@ func (sp *StoragePlugin) Stop(ctx context.Context) {
 // GracefulStop stops the gRPC server gracefully. It stops the server
 // from accepting new connections and RPCs and blocks until all the
 // pending RPCs are finished.
-func (sp *StoragePlugin) GracefulStop(ctx context.Context) {
+func (sp *StoragePlugin) GracefulStop(_ context.Context) {
 	sp.stopOnce.Do(func() {
 		if sp.server != nil {
 			sp.server.GracefulStop()

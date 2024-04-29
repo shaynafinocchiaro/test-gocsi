@@ -278,7 +278,7 @@ type interceptorHasPublishContext interface {
 
 func (s *interceptor) validateRequest(
 	ctx context.Context,
-	method string,
+	_ string,
 	req interface{},
 ) error {
 	if req == nil {
@@ -363,7 +363,7 @@ func (s *interceptor) validateRequest(
 
 func (s *interceptor) validateResponse(
 	ctx context.Context,
-	method string,
+	_ string,
 	rep interface{},
 ) error {
 	if utils.IsNilResponse(rep) {
@@ -407,7 +407,7 @@ func (s *interceptor) validateResponse(
 }
 
 func (s *interceptor) validateCreateVolumeRequest(
-	ctx context.Context,
+	_ context.Context,
 	req csi.CreateVolumeRequest,
 ) error {
 	if req.Name == "" {
@@ -425,7 +425,7 @@ func (s *interceptor) validateCreateVolumeRequest(
 }
 
 func (s *interceptor) validateDeleteVolumeRequest(
-	ctx context.Context,
+	_ context.Context,
 	req csi.DeleteVolumeRequest,
 ) error {
 	if s.opts.requiresCtlrDelVolSecrets {
@@ -439,7 +439,7 @@ func (s *interceptor) validateDeleteVolumeRequest(
 }
 
 func (s *interceptor) validateControllerPublishVolumeRequest(
-	ctx context.Context,
+	_ context.Context,
 	req csi.ControllerPublishVolumeRequest,
 ) error {
 	if s.opts.requiresCtlrPubVolSecrets {
@@ -458,7 +458,7 @@ func (s *interceptor) validateControllerPublishVolumeRequest(
 }
 
 func (s *interceptor) validateControllerUnpublishVolumeRequest(
-	ctx context.Context,
+	_ context.Context,
 	req csi.ControllerUnpublishVolumeRequest,
 ) error {
 	if s.opts.requiresCtlrUnpubVolSecrets {
@@ -472,21 +472,21 @@ func (s *interceptor) validateControllerUnpublishVolumeRequest(
 }
 
 func (s *interceptor) validateValidateVolumeCapabilitiesRequest(
-	ctx context.Context,
+	_ context.Context,
 	req csi.ValidateVolumeCapabilitiesRequest,
 ) error {
 	return validateVolumeCapabilitiesArg(req.VolumeCapabilities, true)
 }
 
 func (s *interceptor) validateGetCapacityRequest(
-	ctx context.Context,
+	_ context.Context,
 	req csi.GetCapacityRequest,
 ) error {
 	return validateVolumeCapabilitiesArg(req.VolumeCapabilities, false)
 }
 
 func (s *interceptor) validateNodeStageVolumeRequest(
-	ctx context.Context,
+	_ context.Context,
 	req csi.NodeStageVolumeRequest,
 ) error {
 	if req.StagingTargetPath == "" {
@@ -505,7 +505,7 @@ func (s *interceptor) validateNodeStageVolumeRequest(
 }
 
 func (s *interceptor) validateNodeUnstageVolumeRequest(
-	ctx context.Context,
+	_ context.Context,
 	req csi.NodeUnstageVolumeRequest,
 ) error {
 	if req.StagingTargetPath == "" {
@@ -517,7 +517,7 @@ func (s *interceptor) validateNodeUnstageVolumeRequest(
 }
 
 func (s *interceptor) validateNodePublishVolumeRequest(
-	ctx context.Context,
+	_ context.Context,
 	req csi.NodePublishVolumeRequest,
 ) error {
 	if s.opts.requiresStagingTargetPath && req.StagingTargetPath == "" {
@@ -541,7 +541,7 @@ func (s *interceptor) validateNodePublishVolumeRequest(
 }
 
 func (s *interceptor) validateNodeUnpublishVolumeRequest(
-	ctx context.Context,
+	_ context.Context,
 	req csi.NodeUnpublishVolumeRequest,
 ) error {
 	if req.TargetPath == "" {
@@ -553,7 +553,7 @@ func (s *interceptor) validateNodeUnpublishVolumeRequest(
 }
 
 func (s *interceptor) validateCreateVolumeResponse(
-	ctx context.Context,
+	_ context.Context,
 	rep csi.CreateVolumeResponse,
 ) error {
 	if rep.Volume == nil {
@@ -573,7 +573,7 @@ func (s *interceptor) validateCreateVolumeResponse(
 }
 
 func (s *interceptor) validateControllerPublishVolumeResponse(
-	ctx context.Context,
+	_ context.Context,
 	rep csi.ControllerPublishVolumeResponse,
 ) error {
 	if s.opts.requiresPubContext && len(rep.PublishContext) == 0 {
@@ -583,7 +583,7 @@ func (s *interceptor) validateControllerPublishVolumeResponse(
 }
 
 func (s *interceptor) validateListVolumesResponse(
-	ctx context.Context,
+	_ context.Context,
 	rep csi.ListVolumesResponse,
 ) error {
 	for i, e := range rep.Entries {
@@ -609,7 +609,7 @@ func (s *interceptor) validateListVolumesResponse(
 }
 
 func (s *interceptor) validateControllerGetCapabilitiesResponse(
-	ctx context.Context,
+	_ context.Context,
 	rep csi.ControllerGetCapabilitiesResponse,
 ) error {
 	if rep.Capabilities != nil && len(rep.Capabilities) == 0 {
@@ -625,7 +625,7 @@ const (
 )
 
 func (s *interceptor) validateGetPluginInfoResponse(
-	ctx context.Context,
+	_ context.Context,
 	rep csi.GetPluginInfoResponse,
 ) error {
 	log.Debug("validateGetPluginInfoResponse: enter")
@@ -667,7 +667,7 @@ func (s *interceptor) validateGetPluginInfoResponse(
 }
 
 func (s *interceptor) validateNodeGetInfoResponse(
-	ctx context.Context,
+	_ context.Context,
 	rep csi.NodeGetInfoResponse,
 ) error {
 	if rep.NodeId == "" {
@@ -678,7 +678,7 @@ func (s *interceptor) validateNodeGetInfoResponse(
 }
 
 func (s *interceptor) validateNodeGetCapabilitiesResponse(
-	ctx context.Context,
+	_ context.Context,
 	rep csi.NodeGetCapabilitiesResponse,
 ) error {
 	if rep.Capabilities != nil && len(rep.Capabilities) == 0 {

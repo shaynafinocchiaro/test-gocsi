@@ -12,23 +12,23 @@ import (
 )
 
 func (s *service) NodeStageVolume(
-	ctx context.Context,
-	req *csi.NodeStageVolumeRequest) (
+	_ context.Context,
+	_ *csi.NodeStageVolumeRequest) (
 	*csi.NodeStageVolumeResponse, error,
 ) {
 	return nil, status.Error(codes.Unimplemented, "")
 }
 
 func (s *service) NodeUnstageVolume(
-	ctx context.Context,
-	req *csi.NodeUnstageVolumeRequest) (
+	_ context.Context,
+	_ *csi.NodeUnstageVolumeRequest) (
 	*csi.NodeUnstageVolumeResponse, error,
 ) {
 	return nil, status.Error(codes.Unimplemented, "")
 }
 
 func (s *service) NodePublishVolume(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.NodePublishVolumeRequest) (
 	*csi.NodePublishVolumeResponse, error,
 ) {
@@ -71,7 +71,7 @@ func (s *service) NodePublishVolume(
 }
 
 func (s *service) NodeUnpublishVolume(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.NodeUnpublishVolumeRequest) (
 	*csi.NodeUnpublishVolumeResponse, error,
 ) {
@@ -100,8 +100,8 @@ func (s *service) NodeUnpublishVolume(
 }
 
 func (s *service) NodeGetInfo(
-	ctx context.Context,
-	req *csi.NodeGetInfoRequest) (
+	_ context.Context,
+	_ *csi.NodeGetInfoRequest) (
 	*csi.NodeGetInfoResponse, error,
 ) {
 	return &csi.NodeGetInfoResponse{
@@ -110,15 +110,15 @@ func (s *service) NodeGetInfo(
 }
 
 func (s *service) NodeGetCapabilities(
-	ctx context.Context,
-	req *csi.NodeGetCapabilitiesRequest) (
+	_ context.Context,
+	_ *csi.NodeGetCapabilitiesRequest) (
 	*csi.NodeGetCapabilitiesResponse, error,
 ) {
 	return &csi.NodeGetCapabilitiesResponse{}, nil
 }
 
 func (s *service) NodeGetVolumeStats(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.NodeGetVolumeStatsRequest) (
 	*csi.NodeGetVolumeStatsResponse, error,
 ) {
@@ -146,8 +146,8 @@ func (s *service) NodeGetVolumeStats(
 }
 
 func (s *service) NodeExpandVolume(
-	ctx context.Context,
-	req *csi.NodeExpandVolumeRequest) (
+	_ context.Context,
+	_ *csi.NodeExpandVolumeRequest) (
 	*csi.NodeExpandVolumeResponse, error,
 ) {
 	return nil, status.Error(codes.Unimplemented, "")

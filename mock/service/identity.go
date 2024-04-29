@@ -8,8 +8,8 @@ import (
 )
 
 func (s *service) Probe(
-	ctx context.Context,
-	req *csi.ProbeRequest) (
+	_ context.Context,
+	_ *csi.ProbeRequest) (
 	*csi.ProbeResponse, error,
 ) {
 	return &csi.ProbeResponse{
@@ -18,8 +18,8 @@ func (s *service) Probe(
 }
 
 func (s *service) GetPluginInfo(
-	ctx context.Context,
-	req *csi.GetPluginInfoRequest) (
+	_ context.Context,
+	_ *csi.GetPluginInfoRequest) (
 	*csi.GetPluginInfoResponse, error,
 ) {
 	return &csi.GetPluginInfoResponse{
@@ -30,8 +30,8 @@ func (s *service) GetPluginInfo(
 }
 
 func (s *service) GetPluginCapabilities(
-	ctx context.Context,
-	req *csi.GetPluginCapabilitiesRequest) (
+	_ context.Context,
+	_ *csi.GetPluginCapabilitiesRequest) (
 	*csi.GetPluginCapabilitiesResponse, error,
 ) {
 	return &csi.GetPluginCapabilitiesResponse{

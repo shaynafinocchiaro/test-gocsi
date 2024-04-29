@@ -305,8 +305,8 @@ func (sp *StoragePlugin) initEnvVars(ctx context.Context) {
 	if v, ok := csictx.LookupEnv(ctx, EnvVarDebug); ok {
 		/* #nosec G104 */
 		if ok, _ := strconv.ParseBool(v); ok {
-			csictx.Setenv(ctx, EnvVarReqLogging, "true")
-			csictx.Setenv(ctx, EnvVarRepLogging, "true")
+			_ = csictx.Setenv(ctx, EnvVarReqLogging, "true")
+			_ = csictx.Setenv(ctx, EnvVarRepLogging, "true")
 		}
 	}
 

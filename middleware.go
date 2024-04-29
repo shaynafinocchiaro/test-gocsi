@@ -224,7 +224,7 @@ func (sp *StoragePlugin) initInterceptors(ctx context.Context) {
 func (sp *StoragePlugin) injectContext(
 	ctx context.Context,
 	req interface{},
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
 	return handler(csictx.WithLookupEnv(ctx, sp.lookupEnv), req)
