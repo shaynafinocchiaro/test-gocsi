@@ -13,7 +13,6 @@ var probeCmd = &cobra.Command{
 	Use:   "probe",
 	Short: `invokes the rpc "Probe"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		ctx, cancel := context.WithTimeout(root.ctx, root.timeout)
 		defer cancel()
 

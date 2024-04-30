@@ -28,7 +28,6 @@ USAGE
 `,
 	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		// Set the volume name and path for the current request.
 		req := csi.NodeExpandVolumeRequest{
 			VolumeId:          args[0],

@@ -21,7 +21,6 @@ USAGE
 `,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		req := csi.DeleteVolumeRequest{
 			Secrets: root.secrets,
 		}

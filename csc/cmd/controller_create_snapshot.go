@@ -31,7 +31,6 @@ CREATING MULTIPLE SNAPSHOTS
 `,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		req := csi.CreateSnapshotRequest{
 			SourceVolumeId: createSnapshot.sourceVol,
 			Parameters:     createSnapshot.params.data,

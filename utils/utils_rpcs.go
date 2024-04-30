@@ -12,7 +12,8 @@ const parseMethodPatt = `^/csi\.v(\d+)\.([^/]+?)/(.+)$`
 // to which the method belongs, and the method's name. An example value
 // for the "fullMethod" argument is "/csi.v0.Identity/GetPluginInfo".
 func ParseMethod(
-	fullMethod string) (version int32, service, methodName string, err error) {
+	fullMethod string,
+) (version int32, service, methodName string, err error) {
 	rx := regexp.MustCompile(parseMethodPatt)
 	m := rx.FindStringSubmatch(fullMethod)
 	if len(m) == 0 {

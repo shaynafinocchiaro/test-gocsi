@@ -71,7 +71,7 @@ func (s *service) newVolume(name string, capcity int64) csi.Volume {
 	}
 }
 
-func (s *service) newSnapshot(name string, size int64) csi.Snapshot {
+func (s *service) newSnapshot(_ string, size int64) csi.Snapshot {
 	return csi.Snapshot{
 		// We set the id to "<volume-id>:<snapshot-id>" since during delete requests
 		// we are not given the parent volume id
@@ -109,7 +109,7 @@ func (s *service) findVolNoLock(k, v string) (volIdx int, volInfo csi.Volume) {
 }
 
 func (s *service) findVolByName(
-	ctx context.Context, name string) (int, csi.Volume) {
-
+	_ context.Context, name string,
+) (int, csi.Volume) {
 	return s.findVol("name", name)
 }

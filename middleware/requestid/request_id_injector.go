@@ -2,12 +2,13 @@ package requestid
 
 import (
 	"fmt"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 	"strconv"
 	"strings"
 	"sync/atomic"
+
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 
 	csictx "github.com/dell/gocsi/context"
 )
@@ -38,9 +39,9 @@ func newRequestIDInjector() *interceptor {
 func (s *interceptor) handleServer(
 	ctx context.Context,
 	req interface{},
-	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler) (interface{}, error) {
-
+	_ *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
 	// storeID is a flag that indicates whether or not the request ID
 	// should be atomically stored in the interceptor's id field at
 	// the end of this function. If the ID was found in the incoming
@@ -90,8 +91,8 @@ func (s *interceptor) handleClient(
 	req, rep interface{},
 	cc *grpc.ClientConn,
 	invoker grpc.UnaryInvoker,
-	opts ...grpc.CallOption) error {
-
+	opts ...grpc.CallOption,
+) error {
 	// Ensure there is an outgoing gRPC context with metadata.
 	md, mdOK := metadata.FromOutgoingContext(ctx)
 	if !mdOK {

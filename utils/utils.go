@@ -67,7 +67,6 @@ var ErrParseProtoAddrRequired = errors.New(
 
 // ParseProtoAddr parses a Golang network address.
 func ParseProtoAddr(protoAddr string) (proto string, addr string, err error) {
-
 	if emptyRX.MatchString(protoAddr) {
 		return "", "", ErrParseProtoAddrRequired
 	}
@@ -272,8 +271,8 @@ func ParseMapWS(line string) map[string]string {
 func NewMountCapability(
 	mode csi.VolumeCapability_AccessMode_Mode,
 	fsType string,
-	mountFlags ...string) *csi.VolumeCapability {
-
+	mountFlags ...string,
+) *csi.VolumeCapability {
 	return &csi.VolumeCapability{
 		AccessMode: &csi.VolumeCapability_AccessMode{
 			Mode: mode,
@@ -290,8 +289,8 @@ func NewMountCapability(
 // NewBlockCapability returns a new *csi.VolumeCapability for a
 // volume that is to be accessed as a raw device.
 func NewBlockCapability(
-	mode csi.VolumeCapability_AccessMode_Mode) *csi.VolumeCapability {
-
+	mode csi.VolumeCapability_AccessMode_Mode,
+) *csi.VolumeCapability {
 	return &csi.VolumeCapability{
 		AccessMode: &csi.VolumeCapability_AccessMode{
 			Mode: mode,
@@ -308,8 +307,8 @@ func PageVolumes(
 	ctx context.Context,
 	client csi.ControllerClient,
 	req csi.ListVolumesRequest,
-	opts ...grpc.CallOption) (<-chan csi.Volume, <-chan error) {
-
+	opts ...grpc.CallOption,
+) (<-chan csi.Volume, <-chan error) {
 	var (
 		cvol = make(chan csi.Volume)
 		cerr = make(chan error)
@@ -364,7 +363,6 @@ func PageVolumes(
 
 		// listVolumes returns true if there are more volumes to list.
 		listVolumes := func() bool {
-
 			// The wait group "wg" is blocked during the execution of
 			// this function.
 			wg.Add(1)
@@ -415,8 +413,8 @@ func PageSnapshots(
 	ctx context.Context,
 	client csi.ControllerClient,
 	req csi.ListSnapshotsRequest,
-	opts ...grpc.CallOption) (<-chan csi.Snapshot, <-chan error) {
-
+	opts ...grpc.CallOption,
+) (<-chan csi.Snapshot, <-chan error) {
 	var (
 		csnap = make(chan csi.Snapshot)
 		cerr  = make(chan error)
@@ -471,7 +469,6 @@ func PageSnapshots(
 
 		// listSnapshots returns true if there are more snaphsots to list.
 		listSnapshots := func() bool {
-
 			// The wait group "wg" is blocked during the execution of
 			// this function.
 			wg.Add(1)
@@ -520,7 +517,6 @@ func PageSnapshots(
 // code that is OK (0) or matches one of the additional, provided successful
 // error codes. Otherwise the original error is returned.
 func IsSuccess(err error, successCodes ...codes.Code) error {
-
 	// Shortcut the process by first checking to see if the error is nil.
 	if err == nil {
 		return nil
@@ -548,8 +544,8 @@ func IsSuccess(err error, successCodes ...codes.Code) error {
 // the volume capability array "a" is compatible with "b". A true value
 // indicates that "a" and "b" are equivalent or "b" is a superset of "a".
 func AreVolumeCapabilitiesCompatible(
-	a, b []*csi.VolumeCapability) (bool, error) {
-
+	a, b []*csi.VolumeCapability,
+) (bool, error) {
 	if len(a) > len(b) {
 		return false, status.Error(
 			codes.AlreadyExists,
@@ -573,8 +569,8 @@ func AreVolumeCapabilitiesCompatible(
 // the volume capability "a" is compatible with the set "b". A true value
 // indicates that "a" and "b" are equivalent or "b" is a superset of "a".
 func IsVolumeCapabilityCompatible(
-	a *csi.VolumeCapability, b []*csi.VolumeCapability) (bool, error) {
-
+	a *csi.VolumeCapability, b []*csi.VolumeCapability,
+) (bool, error) {
 	return AreVolumeCapabilitiesCompatible([]*csi.VolumeCapability{a}, b)
 }
 

@@ -11,8 +11,8 @@ import (
 // together into a left-to-right series that can be provided to a
 // new gRPC client.
 func ChainUnaryClient(
-	i ...grpc.UnaryClientInterceptor) grpc.UnaryClientInterceptor {
-
+	i ...grpc.UnaryClientInterceptor,
+) grpc.UnaryClientInterceptor {
 	switch len(i) {
 	case 0:
 		return func(
@@ -21,7 +21,8 @@ func ChainUnaryClient(
 			req, rep interface{},
 			cc *grpc.ClientConn,
 			invoker grpc.UnaryInvoker,
-			opts ...grpc.CallOption) error {
+			opts ...grpc.CallOption,
+		) error {
 			return invoker(ctx, method, req, rep, cc, opts...)
 		}
 	case 1:
@@ -34,19 +35,19 @@ func ChainUnaryClient(
 		req, rep interface{},
 		cc *grpc.ClientConn,
 		invoker grpc.UnaryInvoker,
-		opts ...grpc.CallOption) error {
-
+		opts ...grpc.CallOption,
+	) error {
 		bc := func(
 			cur grpc.UnaryClientInterceptor,
-			nxt grpc.UnaryInvoker) grpc.UnaryInvoker {
-
+			nxt grpc.UnaryInvoker,
+		) grpc.UnaryInvoker {
 			return func(
 				curCtx context.Context,
 				curMethod string,
 				curReq, curRep interface{},
 				curCC *grpc.ClientConn,
-				curOpts ...grpc.CallOption) error {
-
+				curOpts ...grpc.CallOption,
+			) error {
 				return cur(
 					curCtx,
 					curMethod,
@@ -69,15 +70,16 @@ func ChainUnaryClient(
 // together into a left-to-right series that can be provided to a
 // new gRPC server.
 func ChainUnaryServer(
-	i ...grpc.UnaryServerInterceptor) grpc.UnaryServerInterceptor {
-
+	i ...grpc.UnaryServerInterceptor,
+) grpc.UnaryServerInterceptor {
 	switch len(i) {
 	case 0:
 		return func(
 			ctx context.Context,
 			req interface{},
 			_ *grpc.UnaryServerInfo,
-			handler grpc.UnaryHandler) (interface{}, error) {
+			handler grpc.UnaryHandler,
+		) (interface{}, error) {
 			return handler(ctx, req)
 		}
 	case 1:
@@ -88,14 +90,16 @@ func ChainUnaryServer(
 		ctx context.Context,
 		req interface{},
 		info *grpc.UnaryServerInfo,
-		handler grpc.UnaryHandler) (interface{}, error) {
-
+		handler grpc.UnaryHandler,
+	) (interface{}, error) {
 		bc := func(
 			cur grpc.UnaryServerInterceptor,
-			nxt grpc.UnaryHandler) grpc.UnaryHandler {
+			nxt grpc.UnaryHandler,
+		) grpc.UnaryHandler {
 			return func(
 				curCtx context.Context,
-				curReq interface{}) (interface{}, error) {
+				curReq interface{},
+			) (interface{}, error) {
 				return cur(curCtx, curReq, info, nxt)
 			}
 		}

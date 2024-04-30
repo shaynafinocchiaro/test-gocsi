@@ -35,8 +35,10 @@ var (
 	ctxOSSetenvKey = interface{}("os.Setenev")
 )
 
-type lookupEnvFunc func(string) (string, bool)
-type setenvFunc func(string, string) error
+type (
+	lookupEnvFunc func(string) (string, bool)
+	setenvFunc    func(string, string) error
+)
 
 // GetRequestID inspects the context for gRPC metadata and returns
 // its request ID if available.

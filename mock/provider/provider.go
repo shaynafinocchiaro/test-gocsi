@@ -24,10 +24,10 @@ func New() gocsi.StoragePluginProvider {
 		// modify the SP's interceptors, server options, or prevent the
 		// server from starting by returning a non-nil error.
 		BeforeServe: func(
-			ctx context.Context,
-			sp *gocsi.StoragePlugin,
-			lis net.Listener) error {
-
+			_ context.Context,
+			_ *gocsi.StoragePlugin,
+			_ net.Listener,
+		) error {
 			log.WithField("service", service.Name).Debug("BeforeServe")
 			return nil
 		},

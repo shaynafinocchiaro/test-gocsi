@@ -14,7 +14,6 @@ var controllerGetCapabilitiesCmd = &cobra.Command{
 	Aliases: []string{"capabilities"},
 	Short:   `invokes the rpc "ControllerGetCapabilities"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		ctx, cancel := context.WithTimeout(root.ctx, root.timeout)
 		defer cancel()
 

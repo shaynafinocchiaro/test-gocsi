@@ -14,7 +14,6 @@ var pluginInfoCmd = &cobra.Command{
 	Aliases: []string{"info"},
 	Short:   `invokes the rpc "GetPluginInfo"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		ctx, cancel := context.WithTimeout(root.ctx, root.timeout)
 		defer cancel()
 

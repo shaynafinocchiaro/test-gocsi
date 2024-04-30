@@ -34,15 +34,15 @@ import (
 func Run(
 	ctx context.Context,
 	appName, appDescription, appUsage string,
-	sp StoragePluginProvider) {
-
+	sp StoragePluginProvider,
+) {
 	// Check for the debug value.
 	if v, ok := csictx.LookupEnv(ctx, EnvVarDebug); ok {
 		/* #nosec G104 */
 		if ok, _ := strconv.ParseBool(v); ok {
-			csictx.Setenv(ctx, EnvVarLogLevel, "debug")
-			csictx.Setenv(ctx, EnvVarReqLogging, "true")
-			csictx.Setenv(ctx, EnvVarRepLogging, "true")
+			_ = csictx.Setenv(ctx, EnvVarLogLevel, "debug")
+			_ = csictx.Setenv(ctx, EnvVarReqLogging, "true")
+			_ = csictx.Setenv(ctx, EnvVarRepLogging, "true")
 		}
 	}
 
@@ -113,7 +113,7 @@ func Run(
 			/* #nosec G104 */
 			if l.Addr().Network() == netUnix {
 				sockFile := l.Addr().String()
-				os.RemoveAll(sockFile)
+				_ = os.RemoveAll(sockFile)
 				log.WithField("path", sockFile).Info("removed sock file")
 			}
 		})
@@ -138,7 +138,6 @@ func Run(
 // StoragePluginProvider is able to serve a gRPC endpoint that provides
 // the CSI services: Controller, Identity, Node.
 type StoragePluginProvider interface {
-
 	// Serve accepts incoming connections on the listener lis, creating
 	// a new ServerTransport and service goroutine for each. The service
 	// goroutine read gRPC requests and then call the registered handlers
@@ -330,7 +329,7 @@ func (sp *StoragePlugin) Serve(ctx context.Context, lis net.Listener) error {
 // It cancels all active RPCs on the server side and the corresponding
 // pending RPCs on the client side will get notified by connection
 // errors.
-func (sp *StoragePlugin) Stop(ctx context.Context) {
+func (sp *StoragePlugin) Stop(_ context.Context) {
 	sp.stopOnce.Do(func() {
 		if sp.server != nil {
 			sp.server.Stop()
@@ -342,7 +341,7 @@ func (sp *StoragePlugin) Stop(ctx context.Context) {
 // GracefulStop stops the gRPC server gracefully. It stops the server
 // from accepting new connections and RPCs and blocks until all the
 // pending RPCs are finished.
-func (sp *StoragePlugin) GracefulStop(ctx context.Context) {
+func (sp *StoragePlugin) GracefulStop(_ context.Context) {
 	sp.stopOnce.Do(func() {
 		if sp.server != nil {
 			sp.server.GracefulStop()
@@ -354,8 +353,8 @@ func (sp *StoragePlugin) GracefulStop(ctx context.Context) {
 const netUnix = "unix"
 
 func (sp *StoragePlugin) initEndpointPerms(
-	ctx context.Context, lis net.Listener) error {
-
+	ctx context.Context, lis net.Listener,
+) error {
 	if lis.Addr().Network() != netUnix {
 		return nil
 	}
@@ -385,8 +384,8 @@ func (sp *StoragePlugin) initEndpointPerms(
 }
 
 func (sp *StoragePlugin) initEndpointOwner(
-	ctx context.Context, lis net.Listener) error {
-
+	ctx context.Context, lis net.Listener,
+) error {
 	if lis.Addr().Network() != netUnix {
 		return nil
 	}

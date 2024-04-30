@@ -28,7 +28,6 @@ USAGE
 `,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		req := csi.ControllerPublishVolumeRequest{
 			NodeId:        controllerPublishVolume.nodeID,
 			Secrets:       root.secrets,

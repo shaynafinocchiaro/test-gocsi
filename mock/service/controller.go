@@ -18,8 +18,8 @@ import (
 func (s *service) CreateVolume(
 	ctx context.Context,
 	req *csi.CreateVolumeRequest) (
-	*csi.CreateVolumeResponse, error) {
-
+	*csi.CreateVolumeResponse, error,
+) {
 	// Check to see if the volume already exists.
 	if i, v := s.findVolByName(ctx, req.Name); i >= 0 {
 		return &csi.CreateVolumeResponse{Volume: &v}, nil
@@ -46,10 +46,10 @@ func (s *service) CreateVolume(
 }
 
 func (s *service) DeleteVolume(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.DeleteVolumeRequest) (
-	*csi.DeleteVolumeResponse, error) {
-
+	*csi.DeleteVolumeResponse, error,
+) {
 	s.volsRWL.Lock()
 	defer s.volsRWL.Unlock()
 
@@ -70,10 +70,10 @@ func (s *service) DeleteVolume(
 }
 
 func (s *service) ControllerPublishVolume(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ControllerPublishVolumeRequest) (
-	*csi.ControllerPublishVolumeResponse, error) {
-
+	*csi.ControllerPublishVolumeResponse, error,
+) {
 	s.volsRWL.Lock()
 	defer s.volsRWL.Unlock()
 
@@ -109,10 +109,10 @@ func (s *service) ControllerPublishVolume(
 }
 
 func (s *service) ControllerUnpublishVolume(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ControllerUnpublishVolumeRequest) (
-	*csi.ControllerUnpublishVolumeResponse, error) {
-
+	*csi.ControllerUnpublishVolumeResponse, error,
+) {
 	s.volsRWL.Lock()
 	defer s.volsRWL.Unlock()
 
@@ -150,10 +150,10 @@ func (s *service) ControllerUnpublishVolume(
 }
 
 func (s *service) ValidateVolumeCapabilities(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ValidateVolumeCapabilitiesRequest) (
-	*csi.ValidateVolumeCapabilitiesResponse, error) {
-
+	*csi.ValidateVolumeCapabilitiesResponse, error,
+) {
 	return &csi.ValidateVolumeCapabilitiesResponse{
 		Confirmed: &csi.ValidateVolumeCapabilitiesResponse_Confirmed{
 			VolumeContext:      req.GetVolumeContext(),
@@ -164,10 +164,10 @@ func (s *service) ValidateVolumeCapabilities(
 }
 
 func (s *service) ListVolumes(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ListVolumesRequest) (
-	*csi.ListVolumesResponse, error) {
-
+	*csi.ListVolumesResponse, error,
+) {
 	// Copy the mock volumes into a new slice in order to avoid
 	// locking the service's volume slice for the duration of the
 	// ListVolumes RPC.
@@ -239,20 +239,20 @@ func (s *service) ListVolumes(
 }
 
 func (s *service) GetCapacity(
-	ctx context.Context,
-	req *csi.GetCapacityRequest) (
-	*csi.GetCapacityResponse, error) {
-
+	_ context.Context,
+	_ *csi.GetCapacityRequest) (
+	*csi.GetCapacityResponse, error,
+) {
 	return &csi.GetCapacityResponse{
 		AvailableCapacity: tib100,
 	}, nil
 }
 
 func (s *service) ControllerGetCapabilities(
-	ctx context.Context,
-	req *csi.ControllerGetCapabilitiesRequest) (
-	*csi.ControllerGetCapabilitiesResponse, error) {
-
+	_ context.Context,
+	_ *csi.ControllerGetCapabilitiesRequest) (
+	*csi.ControllerGetCapabilitiesResponse, error,
+) {
 	return &csi.ControllerGetCapabilitiesResponse{
 		Capabilities: []*csi.ControllerServiceCapability{
 			{
@@ -302,10 +302,10 @@ func (s *service) ControllerGetCapabilities(
 }
 
 func (s *service) CreateSnapshot(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.CreateSnapshotRequest) (
-	*csi.CreateSnapshotResponse, error) {
-
+	*csi.CreateSnapshotResponse, error,
+) {
 	snap := s.newSnapshot(req.Name, tib)
 	s.snapsRWL.Lock()
 	defer s.snapsRWL.Unlock()
@@ -317,9 +317,10 @@ func (s *service) CreateSnapshot(
 }
 
 func (s *service) DeleteSnapshot(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.DeleteSnapshotRequest) (
-	*csi.DeleteSnapshotResponse, error) {
+	*csi.DeleteSnapshotResponse, error,
+) {
 	if req.SnapshotId == "" {
 		return nil, status.Error(codes.InvalidArgument, "required: SnapshotID")
 	}
@@ -328,10 +329,10 @@ func (s *service) DeleteSnapshot(
 }
 
 func (s *service) ListSnapshots(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ListSnapshotsRequest) (
-	*csi.ListSnapshotsResponse, error) {
-
+	*csi.ListSnapshotsResponse, error,
+) {
 	// Copy the mock snapshots into a new slice in order to avoid
 	// locking the service's snapshot slice for the duration of the
 	// ListSnapshots RPC.
@@ -406,10 +407,10 @@ func (s *service) ListSnapshots(
 }
 
 func (s *service) ControllerExpandVolume(
-	ctx context.Context,
+	_ context.Context,
 	req *csi.ControllerExpandVolumeRequest) (
-	*csi.ControllerExpandVolumeResponse, error) {
-
+	*csi.ControllerExpandVolumeResponse, error,
+) {
 	s.volsRWL.Lock()
 	defer s.volsRWL.Unlock()
 
@@ -442,9 +443,9 @@ func (s *service) ControllerExpandVolume(
 }
 
 func (s *service) ControllerGetVolume(
-	ctx context.Context,
-	req *csi.ControllerGetVolumeRequest) (
-	*csi.ControllerGetVolumeResponse, error) {
-
+	_ context.Context,
+	_ *csi.ControllerGetVolumeRequest) (
+	*csi.ControllerGetVolumeResponse, error,
+) {
 	return nil, status.Error(codes.Unimplemented, "")
 }

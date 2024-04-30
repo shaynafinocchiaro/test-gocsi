@@ -34,7 +34,6 @@ func TestMain(m *testing.M) {
 }
 
 func TestTryMutex_Lock(t *testing.T) {
-
 	var (
 		i     int
 		id    = t.Name()
@@ -98,7 +97,6 @@ func TestTryMutex_Lock(t *testing.T) {
 }
 
 func ExampleTryMutex_TryLock() {
-
 	const lockName = "ExampleTryMutex_TryLock"
 
 	// The context used when creating new locks and their concurrency sessions.
@@ -137,7 +135,6 @@ func ExampleTryMutex_TryLock() {
 }
 
 func ExampleTryMutex_TryLock_timeout() {
-
 	const lockName = "ExampleTryMutex_TryLock_timeout"
 
 	// The context used when creating new locks and their concurrency sessions.

@@ -22,8 +22,8 @@ func New(
 	ctx context.Context,
 	domain string,
 	ttl time.Duration,
-	config *etcd.Config) (mwtypes.VolumeLockerProvider, error) {
-
+	config *etcd.Config,
+) (mwtypes.VolumeLockerProvider, error) {
 	fields := map[string]interface{}{}
 
 	if domain == "" {
@@ -63,8 +63,8 @@ func New(
 
 func initConfig(
 	ctx context.Context,
-	fields map[string]interface{}) (etcd.Config, error) {
-
+	fields map[string]interface{},
+) (etcd.Config, error) {
 	config := etcd.Config{}
 
 	if v := csictx.Getenv(ctx, EnvVarEndpoints); v != "" {
@@ -178,20 +178,20 @@ func (p *provider) Close() error {
 }
 
 func (p *provider) GetLockWithID(
-	ctx context.Context, id string) (gosync.TryLocker, error) {
-
+	ctx context.Context, id string,
+) (gosync.TryLocker, error) {
 	return p.getLock(ctx, path.Join(p.domain, "volumesByID", id))
 }
 
 func (p *provider) GetLockWithName(
-	ctx context.Context, name string) (gosync.TryLocker, error) {
-
+	ctx context.Context, name string,
+) (gosync.TryLocker, error) {
 	return p.getLock(ctx, path.Join(p.domain, "volumesByName", name))
 }
 
 func (p *provider) getLock(
-	ctx context.Context, pfx string) (gosync.TryLocker, error) {
-
+	ctx context.Context, pfx string,
+) (gosync.TryLocker, error) {
 	log.Debugf("EtcdVolumeLockProvider: getLock: pfx=%v", pfx)
 
 	opts := []etcdsync.SessionOption{etcdsync.WithContext(ctx)}
@@ -204,7 +204,8 @@ func (p *provider) getLock(
 		return nil, err
 	}
 	return &TryMutex{
-		ctx: ctx, sess: sess, mtx: etcdsync.NewMutex(sess, pfx)}, nil
+		ctx: ctx, sess: sess, mtx: etcdsync.NewMutex(sess, pfx),
+	}, nil
 }
 
 // TryMutex is a mutual exclusion lock backed by etcd that implements the
@@ -230,7 +231,7 @@ type TryMutex struct {
 // Lock locks m. If the lock is already in use, the calling goroutine blocks
 // until the mutex is available.
 func (m *TryMutex) Lock() {
-	//log.Debug("TryMutex: lock")
+	// log.Debug("TryMutex: lock")
 	ctx := m.LockCtx
 	if ctx == nil {
 		ctx = m.ctx
@@ -250,7 +251,7 @@ func (m *TryMutex) Lock() {
 // allowed for one goroutine to lock a Mutex and then arrange for another
 // goroutine to unlock it.
 func (m *TryMutex) Unlock() {
-	//log.Debug("TryMutex: unlock")
+	// log.Debug("TryMutex: unlock")
 	ctx := m.UnlockCtx
 	if ctx == nil {
 		ctx = m.ctx
@@ -265,7 +266,7 @@ func (m *TryMutex) Unlock() {
 
 // Close closes and cleans up the underlying concurrency session.
 func (m *TryMutex) Close() error {
-	//log.Debug("TryMutex: close")
+	// log.Debug("TryMutex: close")
 	if err := m.sess.Close(); err != nil {
 		log.Errorf("TryMutex: close err: %v", err)
 		return err
@@ -276,7 +277,6 @@ func (m *TryMutex) Close() error {
 // TryLock attempts to lock m. If no lock can be obtained in the specified
 // duration then a false value is returned.
 func (m *TryMutex) TryLock(timeout time.Duration) bool {
-
 	ctx := m.TryLockCtx
 	if ctx == nil {
 		ctx = m.ctx

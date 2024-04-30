@@ -39,7 +39,7 @@ var _ = Describe("Controller", func() {
 		params   map[string]string
 		// userCreds map[string]string
 		pubInfo map[string]string
-		nodeId  string
+		nodeId  string //nolint:revive
 	)
 	BeforeEach(func() {
 		ctx = context.Background()
@@ -187,8 +187,8 @@ var _ = Describe("Controller", func() {
 
 	validateNewVolumeResult := func(
 		vol *csi.Volume,
-		err error) bool {
-
+		err error,
+	) bool {
 		if err != nil {
 			Ω(err).Should(ΣCM(codes.Aborted, "pending"))
 			return true
@@ -203,8 +203,8 @@ var _ = Describe("Controller", func() {
 
 	validateNewSnapshotResult := func(
 		snap *csi.Snapshot,
-		err error) bool {
-
+		err error,
+	) bool {
 		if err != nil {
 			Ω(err).Should(ΣCM(codes.Aborted, "pending"))
 			return true
@@ -218,8 +218,8 @@ var _ = Describe("Controller", func() {
 
 	validateVolumeExpandResult := func(
 		bytes int64,
-		err error) bool {
-
+		err error,
+	) bool {
 		if err != nil {
 			Ω(err).Should(ΣCM(codes.Aborted, "pending"))
 			return true
@@ -334,7 +334,6 @@ var _ = Describe("Controller", func() {
 			})
 		})
 		Context("Idempotent Create", func() {
-
 			const bucketSize = 250
 
 			var (
@@ -370,14 +369,14 @@ var _ = Describe("Controller", func() {
 					float64(count), float64(bucketSize)); r > 0 {
 					buckets++
 				}
-				//fmt.Fprintf(
+				// fmt.Fprintf(
 				//	GinkgoWriter, "count=%d, buckets=%d\n", count, buckets)
 				for i := 0; i < buckets; i++ {
 					go func(i int) {
 						defer GinkgoRecover()
 						start := i * bucketSize
 						for j := start; j < start+bucketSize && j < count; j++ {
-							//fmt.Fprintf(
+							// fmt.Fprintf(
 							//	GinkgoWriter, "bucket=%d, index=%d\n", i, j)
 							go worker()
 						}
@@ -616,7 +615,6 @@ var _ = Describe("Controller", func() {
 	})
 
 	Describe("Publication", func() {
-
 		var (
 			res *csi.ControllerPublishVolumeResponse
 			err error
@@ -659,7 +657,6 @@ var _ = Describe("Controller", func() {
 		})
 
 		Context("PublishVolume", func() {
-
 			Context("Valid Node ID", func() {
 				It("Should Be Valid", func() {
 					shouldBePublished()
@@ -671,7 +668,6 @@ var _ = Describe("Controller", func() {
 			})
 
 			Context("Invalid Node ID", func() {
-
 				BeforeEach(func() {
 					nodeId = ""
 				})
@@ -681,7 +677,6 @@ var _ = Describe("Controller", func() {
 					Ω(err).Should(ΣCM(codes.InvalidArgument, "required: NodeID"))
 				})
 			})
-
 		})
 
 		Context("UnpublishVolume", func() {
