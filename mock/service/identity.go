@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/golang/protobuf/ptypes/wrappers"
 	"golang.org/x/net/context"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
 )
@@ -13,7 +13,7 @@ func (s *service) Probe(
 	*csi.ProbeResponse, error,
 ) {
 	return &csi.ProbeResponse{
-		Ready: &wrappers.BoolValue{Value: true},
+		Ready: &wrapperspb.BoolValue{Value: true},
 	}, nil
 }
 
