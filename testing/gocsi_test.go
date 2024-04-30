@@ -11,6 +11,7 @@ import (
 	gomegaTypes "github.com/onsi/gomega/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 
 	"github.com/dell/gocsi/mock/provider"
@@ -29,7 +30,7 @@ func startMockServer(ctx context.Context) (*grpc.ClientConn, func(), error) {
 	}()
 
 	clientOpts := []grpc.DialOption{
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDialer(func(string, time.Duration) (net.Conn, error) {
 			return memconn.Dial("memu", "csi-test")
 		}),
