@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/runtime/protoiface"
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
 
@@ -236,7 +236,7 @@ func (s *interceptor) handle(
 			}
 
 			// Add the response to the error details.
-			st, err2 := st.WithDetails(rep.(proto.Message))
+			st, err2 := st.WithDetails(rep.(protoiface.MessageV1))
 
 			// If there is a problem encoding the response into the
 			// protobuf details then err on the side of caution, log

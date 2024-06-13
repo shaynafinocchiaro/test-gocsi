@@ -1,4 +1,5 @@
 # GoCSI
+
 The Container Storage Interface
 ([CSI](https://github.com/container-storage-interface/spec))
 is an industry standard specification for creating storage plug-ins
@@ -12,6 +13,7 @@ of CSI storage plug-ins (SP):
 | [mock](./mock) | Mock CSI SP |
 
 ## Quick Start
+
 The following example illustrates using Docker in combination with the
 GoCSI SP bootstrapper to create a new CSI SP from scratch, serve it on a
 UNIX socket, and then use the GoCSI command line client [`csc`](./csc/) to
@@ -24,7 +26,9 @@ $ docker run -it golang:latest sh -c \
 ```
 
 <a name="bootstrapper"></a>
+
 ## Bootstrapping a Storage Plug-in
+
 The root of the GoCSI project enables storage administrators and developers
 alike to bootstrap a CSI SP:
 
@@ -34,6 +38,7 @@ usage: ./gocsi.sh GO_IMPORT_PATH
 ```
 
 ### Bootstrap Example
+
 The GoCSI [Mock SP](./mock) illustrates the features and configuration options
 available via the bootstrapping method. The following example demonstrates
 creating a new SP at the Go import path `github.com/dell/csi-sp`:
@@ -78,6 +83,7 @@ The new SP adheres to the following structure:
 ```
 
 ### Provider
+
 The `provider` package leverages GoCSI to construct an SP from the CSI
 services defined in `service` package. The file `provider.go` may be
 modified to:
@@ -88,6 +94,7 @@ Please see the Mock SP's [`provider.go`](./mock/provider/provider.go) file
 for a more complete example.
 
 ### Service
+
 The `service` package is where the business logic occurs. The files `controller.go`,
 `identity.go`, and `node.go` each correspond to their eponymous CSI services. A
 developer creating a new CSI SP with GoCSI will work mostly in these files. Each
@@ -95,12 +102,14 @@ of the files have a complete skeleton implementation for their respective servic
 remote procedure calls (RPC).
 
 ### Main
+
 The root, or `main`, package leverages GoCSI to launch the SP as a stand-alone
 server process. The only requirement is that the environment variable `CSI_ENDPOINT`
 must be set, otherwise a help screen is emitted that lists all of the SP's available
 configuration options (environment variables).
 
 ## Configuration
+
 All CSI SPs created using this package are able to leverage the following
 environment variables:
 

@@ -15,6 +15,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 )
 
@@ -139,7 +140,7 @@ var RootCmd = &cobra.Command{
 
 		// Disable TLS if specified.
 		if root.insecure {
-			opts = append(opts, grpc.WithInsecure())
+			opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		}
 
 		// Add interceptors to the client if any are configured.
