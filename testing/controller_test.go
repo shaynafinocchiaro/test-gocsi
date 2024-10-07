@@ -280,9 +280,8 @@ var _ = Describe("Controller", func() {
 					Ω(vol).Should(BeNil())
 					Ω(err).Should(ΣCM(
 						codes.InvalidArgument,
-						fmt.Sprintf(
-							"exceeds size limit: Parameters[%s]: max=128, size=129",
-							string129)))
+						"exceeds size limit: Parameters[%s]: max=128, size=129",
+						string129))
 				})
 			})
 			Context("Invalid Params Field Val", func() {
