@@ -180,20 +180,20 @@ func (s *service) ListVolumes(
 	}()
 
 	var (
-		ulenVols      = int32(len(vols))
+		ulenVols      = int64(len(vols))
 		maxEntries    = req.MaxEntries
-		startingToken int32
+		startingToken int64
 	)
 
 	if v := req.StartingToken; v != "" {
-		i, err := strconv.ParseUint(v, 10, 32)
+		i, err := strconv.ParseInt(v, 10, 32)
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
 				"startingToken=%d !< int32=%d",
 				startingToken, math.MaxUint32)
 		}
-		startingToken = int32(i)
+		startingToken = i
 	}
 
 	if startingToken > ulenVols {
@@ -204,7 +204,8 @@ func (s *service) ListVolumes(
 	}
 
 	// Discern the number of remaining entries.
-	rem := ulenVols - startingToken
+	// #nosec G115
+	rem := int32(ulenVols - startingToken)
 
 	// If maxEntries is 0 or greater than the number of remaining entries then
 	// set maxEntries to the number of remaining entries.
@@ -228,7 +229,7 @@ func (s *service) ListVolumes(
 	}
 
 	var nextToken string
-	if n := startingToken + int32(i); n < ulenVols {
+	if n := startingToken + int64(i); n < ulenVols {
 		nextToken = fmt.Sprintf("%d", n)
 	}
 
@@ -345,20 +346,20 @@ func (s *service) ListSnapshots(
 	}()
 
 	var (
-		ulensnaps     = int32(len(snaps))
+		ulensnaps     = int64(len(snaps))
 		maxEntries    = req.MaxEntries
-		startingToken int32
+		startingToken int64
 	)
 
 	if s := req.StartingToken; s != "" {
-		i, err := strconv.ParseUint(s, 10, 32)
+		i, err := strconv.ParseInt(s, 10, 32)
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
 				"startingToken=%d !< int32=%d",
 				startingToken, math.MaxUint32)
 		}
-		startingToken = int32(i)
+		startingToken = i
 	}
 
 	if startingToken > ulensnaps {
@@ -369,7 +370,8 @@ func (s *service) ListSnapshots(
 	}
 
 	// Discern the number of remaining entries.
-	rem := ulensnaps - startingToken
+	// #nosec G115
+	rem := int32(ulensnaps - startingToken)
 
 	// If maxEntries is 0 or greater than the number of remaining entries then
 	// set maxEntries to the number of remaining entries.
@@ -395,7 +397,7 @@ func (s *service) ListSnapshots(
 	}
 
 	var nextToken string
-	if n := startingToken + int32(i); n < ulensnaps {
+	if n := startingToken + int64(i); n < ulensnaps {
 		nextToken = fmt.Sprintf("%d", n)
 	}
 
