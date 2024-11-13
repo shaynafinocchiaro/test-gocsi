@@ -13,7 +13,7 @@ var pluginCapsCmd = &cobra.Command{
 	Use:     "plugin-capabilities",
 	Aliases: []string{"caps"},
 	Short:   `invokes the rpc "GetPluginCapabilities"`,
-	RunE: func(_ *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		ctx, cancel := context.WithTimeout(root.ctx, root.timeout)
 		defer cancel()
 
