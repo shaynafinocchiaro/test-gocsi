@@ -27,7 +27,7 @@ USAGE
     csc controller publishvolume [flags] VOLUME_ID [VOLUME_ID...]
 `,
 	Args: cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		req := csi.ControllerPublishVolumeRequest{
 			NodeId:        controllerPublishVolume.nodeID,
 			Secrets:       root.secrets,

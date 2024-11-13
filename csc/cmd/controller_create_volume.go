@@ -37,7 +37,7 @@ CREATING MULTIPLE VOLUMES
                                MyNewVolume1 MyNewVolume2
 `,
 	Args: cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		req := csi.CreateVolumeRequest{
 			VolumeCapabilities: createVolume.caps.data,
 			Parameters:         createVolume.params.data,

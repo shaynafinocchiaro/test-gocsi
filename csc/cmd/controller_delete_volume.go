@@ -20,7 +20,7 @@ USAGE
     csc controller deletevolume [flags] VOLUME_ID [VOLUME_ID...]
 `,
 	Args: cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		req := csi.DeleteVolumeRequest{
 			Secrets: root.secrets,
 		}

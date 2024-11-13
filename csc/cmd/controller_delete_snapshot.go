@@ -20,7 +20,7 @@ USAGE
     csc controller delete-snapshot [flags] snapshot_ID [snapshot_ID...]
 `,
 	Args: cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		req := csi.DeleteSnapshotRequest{
 			Secrets: root.secrets,
 		}

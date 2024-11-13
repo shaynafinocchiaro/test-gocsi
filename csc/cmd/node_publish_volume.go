@@ -30,7 +30,7 @@ USAGE
     csc node publish [flags] VOLUME_ID [VOLUME_ID...]
 `,
 	Args: cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		req := csi.NodePublishVolumeRequest{
 			StagingTargetPath: nodePublishVolume.stagingTargetPath,
 			TargetPath:        nodePublishVolume.targetPath,

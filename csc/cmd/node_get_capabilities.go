@@ -13,7 +13,7 @@ var nodeGetCapabilitiesCmd = &cobra.Command{
 	Use:     "get-capabilities",
 	Aliases: []string{"capabilities"},
 	Short:   `invokes the rpc "NodeGetCapabilities"`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		ctx, cancel := context.WithTimeout(root.ctx, root.timeout)
 		defer cancel()
 

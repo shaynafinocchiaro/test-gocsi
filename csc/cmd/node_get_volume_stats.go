@@ -20,7 +20,7 @@ USAGE
 	csc node stats VOLUME_ID:VOLUME_PATH:STAGING_PATH [VOLUME_ID:VOLUME_PATH:STAGING_PATH...]
 `,
 	Args: cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		req := csi.NodeGetVolumeStatsRequest{}
 
 		for i := range args {
