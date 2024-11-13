@@ -43,7 +43,7 @@ func argName(cmd *cobra.Command) string {
 	return ""
 }
 
-func helpFunc(cmd *cobra.Command, args []string) {
+func helpFunc(cmd *cobra.Command, _ []string) {
 	format := helpFormat
 	if !cmd.Runnable() && cmd.Flags().Lookup("help").Value.String() == "false" {
 		format = usageFormat

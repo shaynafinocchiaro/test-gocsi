@@ -26,7 +26,7 @@ USAGE
     csc controller validate [flags] VOLUME_ID [VOLUME_ID...]
 `,
 	Args: cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		req := csi.ValidateVolumeCapabilitiesRequest{
 			VolumeContext:      valVolCaps.volCtx.data,
 			VolumeCapabilities: valVolCaps.caps.data,

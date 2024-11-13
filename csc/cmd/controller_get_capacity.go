@@ -18,7 +18,7 @@ var getCapacityCmd = &cobra.Command{
 	Use:     "get-capacity",
 	Aliases: []string{"capacity"},
 	Short:   `invokes the rpc "GetCapacity"`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		ctx, cancel := context.WithTimeout(root.ctx, root.timeout)
 		defer cancel()
 

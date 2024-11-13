@@ -27,7 +27,7 @@ USAGE
     csc node expand [flags] VOLUME_ID VOLUME_PATH
 `,
 	Args: cobra.ExactArgs(2),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		// Set the volume name and path for the current request.
 		req := csi.NodeExpandVolumeRequest{
 			VolumeId:          args[0],

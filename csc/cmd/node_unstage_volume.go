@@ -23,7 +23,7 @@ USAGE
     csc node unstage [flags] VOLUME_ID [VOLUME_ID...]
 `,
 	Args: cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		req := csi.NodeUnstageVolumeRequest{
 			StagingTargetPath: nodeUnstageVolume.stagingTargetPath,
 		}

@@ -30,7 +30,7 @@ CREATING MULTIPLE SNAPSHOTS
                                 MyNewSnapshot1 MyNewSnapshot2
 `,
 	Args: cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		req := csi.CreateSnapshotRequest{
 			SourceVolumeId: createSnapshot.sourceVol,
 			Parameters:     createSnapshot.params.data,

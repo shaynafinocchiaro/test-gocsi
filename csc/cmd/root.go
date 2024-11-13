@@ -53,7 +53,7 @@ var (
 var RootCmd = &cobra.Command{
 	Use:   "csc",
 	Short: "a command line container storage interface (CSI) client",
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+	PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 		// Enable debug level logging and request and response logging
 		// if the environment variable that controls deubg mode is set
 		// to a truthy value.

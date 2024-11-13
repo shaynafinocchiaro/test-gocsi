@@ -13,7 +13,7 @@ var nodeGetInfoCmd = &cobra.Command{
 	Use:     "get-info",
 	Aliases: []string{"info"},
 	Short:   `invokes the rpc "NodeGetInfo"`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		ctx, cancel := context.WithTimeout(root.ctx, root.timeout)
 		defer cancel()
 

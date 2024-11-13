@@ -27,7 +27,7 @@ USAGE
     csc node stage [flags] VOLUME_ID [VOLUME_ID...]
 `,
 	Args: cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		req := csi.NodeStageVolumeRequest{
 			StagingTargetPath: nodeStageVolume.stagingTargetPath,
 			PublishContext:    nodeStageVolume.pubCtx.data,
