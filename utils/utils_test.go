@@ -560,7 +560,7 @@ var _ = Describe("PageVolumes", func() {
 	)
 
 	// Create a new CSI controller service
-	svc := service.New()
+	svc := service.NewClient()
 
 	BeforeEach(func() {
 		ctx = context.Background()

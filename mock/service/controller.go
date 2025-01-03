@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"google.golang.org/grpc"
 	"math"
 	"path"
 	"strconv"
@@ -14,6 +15,14 @@ import (
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
 )
+
+func (s *serviceClient) CreateVolume(
+	ctx context.Context,
+	req *csi.CreateVolumeRequest, _ ...grpc.CallOption) (
+	*csi.CreateVolumeResponse, error,
+) {
+	return s.service.CreateVolume(ctx, req)
+}
 
 func (s *service) CreateVolume(
 	ctx context.Context,
@@ -62,6 +71,14 @@ func (s *service) CreateVolume(
 	return &csi.CreateVolumeResponse{Volume: &v}, nil
 }
 
+func (s *serviceClient) DeleteVolume(
+	ctx context.Context,
+	req *csi.DeleteVolumeRequest, _ ...grpc.CallOption) (
+	*csi.DeleteVolumeResponse, error,
+) {
+	return s.service.DeleteVolume(ctx, req)
+}
+
 func (s *service) DeleteVolume(
 	_ context.Context,
 	req *csi.DeleteVolumeRequest) (
@@ -84,6 +101,14 @@ func (s *service) DeleteVolume(
 	s.vols = s.vols[:len(s.vols)-1]
 	log.WithField("volumeID", req.VolumeId).Debug("mock delete volume")
 	return &csi.DeleteVolumeResponse{}, nil
+}
+
+func (s *serviceClient) ControllerPublishVolume(
+	ctx context.Context,
+	req *csi.ControllerPublishVolumeRequest, _ ...grpc.CallOption) (
+	*csi.ControllerPublishVolumeResponse, error,
+) {
+	return s.service.ControllerPublishVolume(ctx, req)
 }
 
 func (s *service) ControllerPublishVolume(
@@ -123,6 +148,14 @@ func (s *service) ControllerPublishVolume(
 			"device": device,
 		},
 	}, nil
+}
+
+func (s *serviceClient) ControllerUnpublishVolume(
+	ctx context.Context,
+	req *csi.ControllerUnpublishVolumeRequest, _ ...grpc.CallOption) (
+	*csi.ControllerUnpublishVolumeResponse, error,
+) {
+	return s.service.ControllerUnpublishVolume(ctx, req)
 }
 
 func (s *service) ControllerUnpublishVolume(
@@ -166,6 +199,14 @@ func (s *service) ControllerUnpublishVolume(
 	return &csi.ControllerUnpublishVolumeResponse{}, nil
 }
 
+func (s *serviceClient) ValidateVolumeCapabilities(
+	ctx context.Context,
+	req *csi.ValidateVolumeCapabilitiesRequest, _ ...grpc.CallOption) (
+	*csi.ValidateVolumeCapabilitiesResponse, error,
+) {
+	return s.service.ValidateVolumeCapabilities(ctx, req)
+}
+
 func (s *service) ValidateVolumeCapabilities(
 	_ context.Context,
 	req *csi.ValidateVolumeCapabilitiesRequest) (
@@ -178,6 +219,14 @@ func (s *service) ValidateVolumeCapabilities(
 			Parameters:         req.GetParameters(),
 		},
 	}, nil
+}
+
+func (s *serviceClient) ListVolumes(
+	ctx context.Context,
+	req *csi.ListVolumesRequest, _ ...grpc.CallOption) (
+	*csi.ListVolumesResponse, error,
+) {
+	return s.service.ListVolumes(ctx, req)
 }
 
 func (s *service) ListVolumes(
@@ -256,6 +305,14 @@ func (s *service) ListVolumes(
 	}, nil
 }
 
+func (s *serviceClient) GetCapacity(
+	ctx context.Context,
+	req *csi.GetCapacityRequest, _ ...grpc.CallOption) (
+	*csi.GetCapacityResponse, error,
+) {
+	return s.service.GetCapacity(ctx, req)
+}
+
 func (s *service) GetCapacity(
 	_ context.Context,
 	_ *csi.GetCapacityRequest) (
@@ -264,6 +321,14 @@ func (s *service) GetCapacity(
 	return &csi.GetCapacityResponse{
 		AvailableCapacity: tib100,
 	}, nil
+}
+
+func (s *serviceClient) ControllerGetCapabilities(
+	ctx context.Context,
+	req *csi.ControllerGetCapabilitiesRequest, _ ...grpc.CallOption) (
+	*csi.ControllerGetCapabilitiesResponse, error,
+) {
+	return s.service.ControllerGetCapabilities(ctx, req)
 }
 
 func (s *service) ControllerGetCapabilities(
@@ -319,6 +384,14 @@ func (s *service) ControllerGetCapabilities(
 	}, nil
 }
 
+func (s *serviceClient) CreateSnapshot(
+	ctx context.Context,
+	req *csi.CreateSnapshotRequest, _ ...grpc.CallOption) (
+	*csi.CreateSnapshotResponse, error,
+) {
+	return s.service.CreateSnapshot(ctx, req)
+}
+
 func (s *service) CreateSnapshot(
 	_ context.Context,
 	req *csi.CreateSnapshotRequest) (
@@ -334,6 +407,14 @@ func (s *service) CreateSnapshot(
 	}, nil
 }
 
+func (s *serviceClient) DeleteSnapshot(
+	ctx context.Context,
+	req *csi.DeleteSnapshotRequest, _ ...grpc.CallOption) (
+	*csi.DeleteSnapshotResponse, error,
+) {
+	return s.service.DeleteSnapshot(ctx, req)
+}
+
 func (s *service) DeleteSnapshot(
 	_ context.Context,
 	req *csi.DeleteSnapshotRequest) (
@@ -344,6 +425,14 @@ func (s *service) DeleteSnapshot(
 	}
 
 	return &csi.DeleteSnapshotResponse{}, nil
+}
+
+func (s *serviceClient) ListSnapshots(
+	ctx context.Context,
+	req *csi.ListSnapshotsRequest, _ ...grpc.CallOption) (
+	*csi.ListSnapshotsResponse, error,
+) {
+	return s.service.ListSnapshots(ctx, req)
 }
 
 func (s *service) ListSnapshots(
@@ -425,6 +514,14 @@ func (s *service) ListSnapshots(
 	}, nil
 }
 
+func (s *serviceClient) ControllerExpandVolume(
+	ctx context.Context,
+	req *csi.ControllerExpandVolumeRequest, _ ...grpc.CallOption) (
+	*csi.ControllerExpandVolumeResponse, error,
+) {
+	return s.service.ControllerExpandVolume(ctx, req)
+}
+
 func (s *service) ControllerExpandVolume(
 	_ context.Context,
 	req *csi.ControllerExpandVolumeRequest) (
@@ -459,6 +556,14 @@ func (s *service) ControllerExpandVolume(
 		CapacityBytes:         v.CapacityBytes,
 		NodeExpansionRequired: false,
 	}, nil
+}
+
+func (s *serviceClient) ControllerGetVolume(
+	ctx context.Context,
+	req *csi.ControllerGetVolumeRequest, _ ...grpc.CallOption) (
+	*csi.ControllerGetVolumeResponse, error,
+) {
+	return s.service.ControllerGetVolume(ctx, req)
 }
 
 func (s *service) ControllerGetVolume(
