@@ -1,12 +1,14 @@
 package utils_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math"
 	"os"
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
+	"github.com/dell/gocsi/mock/service"
 	"github.com/dell/gocsi/utils"
 )
 
@@ -459,5 +461,172 @@ var _ = Describe("AreVolumeCapabilitiesCompatible", func() {
 			Block: &csi.VolumeCapability_BlockVolume{},
 		}
 		Ω(utils.AreVolumeCapabilitiesCompatible(a, b)).Should(BeTrue())
+	})
+})
+
+var _ = Describe("ParseSlice", func() {
+	It("should parse a string into a slice", func() {
+		input := "value1, value2, value3"
+		expected := []string{"value1", "value2", "value3"}
+		result := utils.ParseSlice(input)
+		Expect(result).To(Equal(expected))
+	})
+
+	It("should return nil for an empty string", func() {
+		input := ""
+		//expected := []string(nil)
+		result := utils.ParseSlice(input)
+		Expect(result).To(BeNil())
+	})
+
+	It("should handle quoted values with leading and trailing whitespace", func() {
+		input := `value1, "value2 ", " value3 "`
+		expected := []string{"value1", "value2 ", " value3 "}
+		result := utils.ParseSlice(input)
+		Expect(result).To(Equal(expected))
+	})
+
+	It("should handle quoted values with escaped quotes", func() {
+		input := `value1, "value2 \"with quotes\"", "value3"`
+		expected := []string{"value1", `value2 "with quotes"`, "value3"}
+		result := utils.ParseSlice(input)
+		Expect(result).To(Equal(expected))
+	})
+})
+
+var _ = Describe("ParseMapWS", func() {
+	Context("One Pair", func() {
+		It("Should Be Valid", func() {
+			data := utils.ParseMapWS("k1=v1")
+			Expect(data).To(HaveLen(1))
+			Expect(data["k1"]).To(Equal("v1"))
+		})
+	})
+
+	Context("Empty Line", func() {
+		It("Should Be Valid", func() {
+			data := utils.ParseMapWS("")
+			Expect(data).To(HaveLen(0))
+		})
+	})
+
+	Context("Key Sans Value", func() {
+		It("Should Be Valid", func() {
+			data := utils.ParseMapWS("k1")
+			Expect(data).To(HaveLen(1))
+		})
+	})
+
+	Context("Two Pair", func() {
+		It("Should Be Valid", func() {
+			data := utils.ParseMapWS("k1=v1, k2=v2")
+			Expect(data).To(HaveLen(2))
+			Expect(data["k1"]).To(Equal("v1"))
+			Expect(data["k2"]).To(Equal("v2"))
+		})
+	})
+
+	Context("Two Pair with Quoting & Escaping", func() {
+		It("Should Be Valid", func() {
+			data := utils.ParseMapWS(`k1=v1, "k2=v2""s"`)
+			Expect(data).To(HaveLen(2))
+			Expect(data["k1"]).To(Equal("v1"))
+			Expect(data["k2"]).To(Equal(`v2"s`))
+		})
+
+		It("Should Be Valid", func() {
+			data := utils.ParseMapWS(`k1=v1, "k2=v2\'s"`)
+			Expect(data).To(HaveLen(2))
+			Expect(data["k1"]).To(Equal("v1"))
+			Expect(data["k2"]).To(Equal(`v2\'s`))
+		})
+
+		It("Should Be Valid", func() {
+			data := utils.ParseMapWS(`k1=v1, k2=v2's`)
+			Expect(data).To(HaveLen(2))
+			Expect(data["k1"]).To(Equal("v1"))
+			Expect(data["k2"]).To(Equal(`v2's`))
+		})
+	})
+
+	// Add more test cases as needed
+})
+
+var _ = Describe("PageVolumes", func() {
+	var (
+		ctx    context.Context
+		client csi.ControllerClient
+		req    csi.ListVolumesRequest
+	)
+
+	// Create a new CSI controller service
+	svc := service.New()
+
+	BeforeEach(func() {
+		ctx = context.Background()
+		client = svc
+		req = csi.ListVolumesRequest{}
+	})
+
+	Context("Normal List Volumes Call", func() {
+		It("Should Be Valid", func() {
+			cvol, cerr := utils.PageVolumes(ctx, client, req)
+
+			var (
+				volumes []csi.Volume
+				errors  []error
+			)
+
+			for {
+				select {
+				case v, ok := <-cvol:
+					if !ok {
+						break
+					}
+					volumes = append(volumes, v)
+				case e, ok := <-cerr:
+					if !ok {
+						break
+					}
+					errors = append(errors, e)
+				}
+			}
+
+			Expect(errors).To(BeEmpty())
+			Expect(volumes).To(HaveLen(3))
+		})
+	})
+
+	Context("Create Volume Then List", func() {
+		JustBeforeEach(func() {
+			client.CreateVolume(ctx, &csi.CreateVolumeRequest{Name: "test"})
+		})
+
+		It("Should Be Valid", func() {
+			cvol, cerr := utils.PageVolumes(ctx, client, req)
+
+			var (
+				volumes []csi.Volume
+				errors  []error
+			)
+
+			for {
+				select {
+				case v, ok := <-cvol:
+					if !ok {
+						break
+					}
+					volumes = append(volumes, v)
+				case e, ok := <-cerr:
+					if !ok {
+						break
+					}
+					errors = append(errors, e)
+				}
+			}
+
+			Expect(errors).To(BeEmpty())
+			Expect(volumes).To(HaveLen(4))
+		})
 	})
 })
