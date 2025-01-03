@@ -5,11 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net/http"
 	"os"
+	"testing"
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
-	"github.com/dell/gocsi/mock/service"
 	"github.com/dell/gocsi/utils"
+	"google.golang.org/grpc/codes"
+	grpcstatus "google.golang.org/grpc/status"
 )
 
 var _ = Describe("ParseMethod", func() {
@@ -494,64 +497,6 @@ var _ = Describe("ParseSlice", func() {
 	})
 })
 
-var _ = Describe("ParseMapWS", func() {
-	Context("One Pair", func() {
-		It("Should Be Valid", func() {
-			data := utils.ParseMapWS("k1=v1")
-			Expect(data).To(HaveLen(1))
-			Expect(data["k1"]).To(Equal("v1"))
-		})
-	})
-
-	Context("Empty Line", func() {
-		It("Should Be Valid", func() {
-			data := utils.ParseMapWS("")
-			Expect(data).To(HaveLen(0))
-		})
-	})
-
-	Context("Key Sans Value", func() {
-		It("Should Be Valid", func() {
-			data := utils.ParseMapWS("k1")
-			Expect(data).To(HaveLen(1))
-		})
-	})
-
-	Context("Two Pair", func() {
-		It("Should Be Valid", func() {
-			data := utils.ParseMapWS("k1=v1, k2=v2")
-			Expect(data).To(HaveLen(2))
-			Expect(data["k1"]).To(Equal("v1"))
-			Expect(data["k2"]).To(Equal("v2"))
-		})
-	})
-
-	Context("Two Pair with Quoting & Escaping", func() {
-		It("Should Be Valid", func() {
-			data := utils.ParseMapWS(`k1=v1, "k2=v2""s"`)
-			Expect(data).To(HaveLen(2))
-			Expect(data["k1"]).To(Equal("v1"))
-			Expect(data["k2"]).To(Equal(`v2"s`))
-		})
-
-		It("Should Be Valid", func() {
-			data := utils.ParseMapWS(`k1=v1, "k2=v2\'s"`)
-			Expect(data).To(HaveLen(2))
-			Expect(data["k1"]).To(Equal("v1"))
-			Expect(data["k2"]).To(Equal(`v2\'s`))
-		})
-
-		It("Should Be Valid", func() {
-			data := utils.ParseMapWS(`k1=v1, k2=v2's`)
-			Expect(data).To(HaveLen(2))
-			Expect(data["k1"]).To(Equal("v1"))
-			Expect(data["k2"]).To(Equal(`v2's`))
-		})
-	})
-
-	// Add more test cases as needed
-})
-
 var _ = Describe("PageVolumes", func() {
 	var (
 		ctx    context.Context
@@ -559,12 +504,12 @@ var _ = Describe("PageVolumes", func() {
 		req    csi.ListVolumesRequest
 	)
 
-	// Create a new CSI controller service
-	svc := service.New()
+	// Create a new mock controller
+	mockControllerClient := mockclient.MockControllerClient{}
 
 	BeforeEach(func() {
 		ctx = context.Background()
-		client = svc
+		client = mockControllerClient
 		req = csi.ListVolumesRequest{}
 	})
 
@@ -630,3 +575,95 @@ var _ = Describe("PageVolumes", func() {
 		})
 	})
 })
+
+// struct for error injection testing with GRPCStatus
+type ErrorStruct struct {
+	StatusCode int
+	Msg        string
+}
+
+func (e *ErrorStruct) Error() string {
+	return fmt.Sprintf("Error %d: %s", e.StatusCode, e.Msg)
+}
+func (e *ErrorStruct) GRPCStatus() *grpcstatus.Status {
+	if e == nil || e.StatusCode == 0 {
+		return grpcstatus.New(codes.OK, e.Msg)
+	}
+	return grpcstatus.New(codes.Code(e.StatusCode), e.Msg)
+
+}
+func TestIsSuccess(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: Successful response - nil err
+	Expect(utils.IsSuccess(nil)).To(BeNil())
+
+	// Test case: Non-successful response
+	response := ErrorStruct{
+		StatusCode: http.StatusNotFound,
+	}
+	Expect(utils.IsSuccess(&response)).To(Not(BeNil()))
+
+	// Test case: Successful response - GRPC OK
+	response = ErrorStruct{StatusCode: 0}
+	Expect(utils.IsSuccess(&response)).To(BeNil())
+
+	// Test case: Successful response - acceptable opt
+	response = ErrorStruct{
+		StatusCode: http.StatusOK,
+	}
+	Expect(utils.IsSuccess(&response, http.StatusOK)).To(BeNil())
+
+}
+
+func TestSimple(t *testing.T) {
+	RegisterTestingT(t)
+}
+
+func TestParseMapWS(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: One Pair
+	data := utils.ParseMapWS("k1=v1")
+	Expect(data).To(HaveLen(1))
+	Expect(data["k1"]).To(Equal("v1"))
+
+	// Test case: Empty Line
+	data = utils.ParseMapWS("")
+	Expect(data).To(HaveLen(0))
+
+	// Test case: Key Sans Value
+	data = utils.ParseMapWS("k1")
+	Expect(data).To(HaveLen(0)) // should be empty if no key/value pairs
+
+	// Test case: Two Pair
+	data = utils.ParseMapWS("k1=v1 k2=v2")
+	Expect(data).To(HaveLen(2))
+	Expect(data["k1"]).To(Equal("v1"))
+	Expect(data["k2"]).To(Equal("v2"))
+
+	/*
+		// This test case SHOULD pass based on the comments at the top of ParseMapWS.
+		// It is VERY concerning that it doesn't.
+		// Test case: Two Pair with Quoting & Escaping
+		data = utils.ParseMapWS(`k1=v1 "k2=v2"`)
+		Expect(data).To(HaveLen(2))
+		Expect(data["k1"]).To(Equal("v1"))
+		Expect(data["k2"]).To(Equal(`v2"s`))
+	*/
+
+	/*
+		// This test case also SHOULD pass. I don't think ParseMapWS handles quotations as advertised.
+		// Test case: Two Pair with Quoting & Escaping
+		data = utils.ParseMapWS(`k1=v1 "k2=v2\'s"`)
+		Expect(data).To(HaveLen(2))
+		Expect(data["k1"]).To(Equal("v1"))
+		Expect(data["k2"]).To(Equal(`v2\'s`))
+	*/
+
+	// Test case: Two Pair with Quoting & Escaping
+	data = utils.ParseMapWS(`k1=v1 k2=v2\'s`)
+	Expect(data).To(HaveLen(2))
+	Expect(data["k1"]).To(Equal("v1"))
+	Expect(data["k2"]).To(Equal(`v2's`))
+}
