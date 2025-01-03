@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
+	"github.com/dell/gocsi/mock/service"
 	"github.com/dell/gocsi/utils"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
@@ -504,12 +505,12 @@ var _ = Describe("PageVolumes", func() {
 		req    csi.ListVolumesRequest
 	)
 
-	// Create a new mock controller
-	mockControllerClient := mockclient.MockControllerClient{}
+	// Create a new CSI controller service
+	svc := service.NewClient()
 
 	BeforeEach(func() {
 		ctx = context.Background()
-		client = mockControllerClient
+		client = svc
 		req = csi.ListVolumesRequest{}
 	})
 

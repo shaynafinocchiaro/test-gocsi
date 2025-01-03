@@ -25,10 +25,14 @@ var Manifest = map[string]string{
 }
 
 // Service is the CSI Mock service provider.
-type Service interface {
+type MockServer interface {
 	csi.ControllerServer
 	csi.IdentityServer
 	csi.NodeServer
+}
+
+type MockClient interface {
+	csi.ControllerClient
 }
 
 type service struct {
@@ -42,8 +46,12 @@ type service struct {
 	snapsNID uint64
 }
 
+type serviceClient struct {
+	service MockServer
+}
+
 // New returns a new Service.
-func New() Service {
+func NewServer() MockServer {
 	s := &service{nodeID: Name}
 	s.vols = []csi.Volume{
 		s.newVolume("Mock Volume 1", gib100),
@@ -51,6 +59,12 @@ func New() Service {
 		s.newVolume("Mock Volume 3", gib100),
 	}
 	return s
+}
+
+func NewClient() MockClient {
+	return &serviceClient{
+		service: NewServer(),
+	}
 }
 
 const (
