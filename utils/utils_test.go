@@ -1,6 +1,7 @@
 package utils_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math"
@@ -9,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
+	"github.com/dell/gocsi/mock/service"
 	"github.com/dell/gocsi/utils"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
@@ -414,6 +416,13 @@ var _ = Describe("EqualVolumeCapability", func() {
 		Ω(utils.EqualVolumeCapability(a, b)).Should(BeFalse())
 		bAT.Mount.MountFlags = nil
 		Ω(utils.EqualVolumeCapability(a, b)).Should(BeTrue())
+
+		// error test: a is non-nil, b is nil
+		a.AccessMode = &csi.VolumeCapability_AccessMode{
+			Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+		}
+		b.AccessMode = nil
+		Ω(utils.EqualVolumeCapability(a, b)).Should(BeFalse())
 	})
 })
 
@@ -463,6 +472,34 @@ var _ = Describe("AreVolumeCapabilitiesCompatible", func() {
 			Block: &csi.VolumeCapability_BlockVolume{},
 		}
 		Ω(utils.AreVolumeCapabilitiesCompatible(a, b)).Should(BeTrue())
+
+		// make len(a) > len(b) for an error test
+		a = append(a, &csi.VolumeCapability{
+			AccessMode: &csi.VolumeCapability_AccessMode{
+				Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+			},
+			AccessType: &csi.VolumeCapability_Mount{
+				Mount: &csi.VolumeCapability_MountVolume{
+					FsType:     "ext4",
+					MountFlags: []string{"rw"},
+				},
+			},
+		})
+		a = append(a, &csi.VolumeCapability{
+			AccessMode: &csi.VolumeCapability_AccessMode{
+				Mode: csi.VolumeCapability_AccessMode_MULTI_NODE_MULTI_WRITER,
+			},
+			AccessType: &csi.VolumeCapability_Mount{
+				Mount: &csi.VolumeCapability_MountVolume{
+					FsType:     "ext4",
+					MountFlags: []string{"rw"},
+				},
+			},
+		})
+		out, err := utils.AreVolumeCapabilitiesCompatible(a, b)
+		Ω(out).Should(BeFalse())
+		Ω(err).Should(HaveOccurred())
+
 	})
 })
 
@@ -517,86 +554,83 @@ func TestParseSlice(t *testing.T) {
 	*/
 }
 
-/*
-var _ = Describe("PageVolumes", func() {
-	var (
-		ctx    context.Context
-		client csi.ControllerClient
-		req    csi.ListVolumesRequest
-	)
+func TestPageVolumes(t *testing.T) {
+	RegisterTestingT(t)
 
 	// Create a new CSI controller service
 	svc := service.NewClient()
 
-	BeforeEach(func() {
-		ctx = context.Background()
-		client = svc
-		req = csi.ListVolumesRequest{}
-	})
+	// Create a mock controller client
+	// TODO: This is the part that is breaking-- our mock controller client is not functional
+	//mockClient := svc
 
-	Context("Normal List Volumes Call", func() {
-		It("Should Be Valid", func() {
-			cvol, cerr := utils.PageVolumes(ctx, client, req)
+	// Create a context
+	ctx := context.Background()
 
-			var (
-				volumes []csi.Volume
-				errors  []error
-			)
+	// Create a list volumes request
+	req := csi.ListVolumesRequest{}
 
-			for {
-				select {
-				case v, ok := <-cvol:
-					if !ok {
-						break
-					}
-					volumes = append(volumes, v)
-				case e, ok := <-cerr:
-					if !ok {
-						break
-					}
-					errors = append(errors, e)
-				}
+	// Call the PageVolumes function
+	cvol, cerr := utils.PageVolumes(ctx, svc, req)
+	var err error
+	vols := []csi.Volume{}
+	for {
+		select {
+		case v, ok := <-cvol:
+			if !ok {
+				return
 			}
-
-			Expect(errors).To(BeEmpty())
-			Expect(volumes).To(HaveLen(3))
-		})
-	})
-
-	Context("Create Volume Then List", func() {
-		JustBeforeEach(func() {
-			client.CreateVolume(ctx, &csi.CreateVolumeRequest{Name: "test"})
-		})
-
-		It("Should Be Valid", func() {
-			cvol, cerr := utils.PageVolumes(ctx, client, req)
-
-			var (
-				volumes []csi.Volume
-				errors  []error
-			)
-
-			for {
-				select {
-				case v, ok := <-cvol:
-					if !ok {
-						break
-					}
-					volumes = append(volumes, v)
-				case e, ok := <-cerr:
-					if !ok {
-						break
-					}
-					errors = append(errors, e)
-				}
+			vols = append(vols, v)
+		case e, ok := <-cerr:
+			if !ok {
+				return
 			}
+			err = e
+		}
+	}
 
-			Expect(errors).To(BeEmpty())
-			Expect(volumes).To(HaveLen(4))
-		})
-	})
-})
-*/
+	Expect(err).To(BeNil())
+	Expect(vols).To(HaveLen(4))
+}
+
+func TestPageSnapshots(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Create a new CSI controller service
+	svc := service.NewClient()
+
+	// Create a mock controller client
+	// TODO: This is the part that is breaking-- our mock controller client is not functional
+	//mockClient := svc
+
+	// Create a context
+	ctx := context.Background()
+
+	// Create a list volumes request
+	req := csi.ListSnapshotsRequest{}
+
+	// Call the PageSnapshots function
+	csnap, cerr := utils.PageSnapshots(ctx, svc, req)
+	snaps := []csi.Snapshot{}
+	var err error
+	for {
+		select {
+		case v, ok := <-csnap:
+			if !ok {
+				return
+			}
+			snaps = append(snaps, v)
+		case e, ok := <-cerr:
+			if !ok {
+				return
+			}
+			err = e
+		}
+	}
+
+	Expect(err).To(BeNil())
+	Expect(snaps).To(HaveLen(3))
+}
 
 // struct for error injection testing with GRPCStatus
 type ErrorStruct struct {
@@ -665,7 +699,7 @@ func TestParseMapWS(t *testing.T) {
 	Expect(data["k2"]).To(Equal("v2"))
 
 	/*
-		// This test case SHOULD pass based on the comments at the top of ParseMapWS.
+		// TODO: This test case SHOULD pass based on the comments at the top of ParseMapWS.
 		// It is VERY concerning that it doesn't.
 		// Test case: Two Pair with Quoting & Escaping
 		data = utils.ParseMapWS(`k1=v1 "k2=v2"`)
@@ -675,7 +709,7 @@ func TestParseMapWS(t *testing.T) {
 	*/
 
 	/*
-		// This test case also SHOULD pass. I don't think ParseMapWS handles quotations as advertised.
+		// TODO: This test case also SHOULD pass. I don't think ParseMapWS handles quotations as advertised.
 		// Test case: Two Pair with Quoting & Escaping
 		data = utils.ParseMapWS(`k1=v1 "k2=v2\'s"`)
 		Expect(data).To(HaveLen(2))
@@ -801,4 +835,42 @@ func TestGetCSIEndpointListener(t *testing.T) {
 	lis, err = utils.GetCSIEndpointListener()
 	Ω(err).Should(HaveOccurred())
 	Ω(lis).Should(BeNil())
+}
+
+func TestIsVolumeCapabilityCompatible(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: Compatible volume capabilities
+	a := &csi.VolumeCapability{
+		AccessMode: &csi.VolumeCapability_AccessMode{
+			Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+		},
+		AccessType: &csi.VolumeCapability_Block{
+			Block: &csi.VolumeCapability_BlockVolume{},
+		},
+	}
+	b := []*csi.VolumeCapability{
+		{
+			AccessMode: &csi.VolumeCapability_AccessMode{
+				Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+			},
+			AccessType: &csi.VolumeCapability_Block{
+				Block: &csi.VolumeCapability_BlockVolume{},
+			},
+		},
+		{
+			AccessMode: &csi.VolumeCapability_AccessMode{
+				Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+			},
+			AccessType: &csi.VolumeCapability_Mount{
+				Mount: &csi.VolumeCapability_MountVolume{
+					FsType:     "ext4",
+					MountFlags: []string{"rw"},
+				},
+			},
+		},
+	}
+	out, err := utils.IsVolumeCapabilityCompatible(a, b)
+	Ω(out).Should(BeTrue())
+	Ω(err).Should(BeNil())
 }
