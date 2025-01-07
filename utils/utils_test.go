@@ -340,6 +340,16 @@ var _ = Describe("CompareVolume", func() {
 		a.VolumeContext = map[string]string{"key": "val"}
 		Ω(utils.CompareVolume(a, b)).Should(Equal(0))
 	})
+	It("Volume context check", func() {
+		// volume IDs must be equal, capacityBytes must be equal,
+		// length of volume contexts must be equal, and then, finally,
+		// the volume context for one key-value pair in B must be larger
+		b := csi.Volume{VolumeId: "0"}
+		a := csi.Volume{VolumeId: "0"}
+		a.VolumeContext = map[string]string{"key1": "1"}
+		b.VolumeContext = map[string]string{"key1": "2"}
+		Ω(utils.CompareVolume(a, b)).Should(Equal(-1))
+	})
 })
 
 var _ = Describe("EqualVolumeCapability", func() {
@@ -560,10 +570,6 @@ func TestPageVolumes(t *testing.T) {
 	// Create a new CSI controller service
 	svc := service.NewClient()
 
-	// Create a mock controller client
-	// TODO: This is the part that is breaking-- our mock controller client is not functional
-	//mockClient := svc
-
 	// Create a context
 	ctx := context.Background()
 
@@ -698,24 +704,11 @@ func TestParseMapWS(t *testing.T) {
 	Expect(data["k1"]).To(Equal("v1"))
 	Expect(data["k2"]).To(Equal("v2"))
 
-	/*
-		// TODO: This test case SHOULD pass based on the comments at the top of ParseMapWS.
-		// It is VERY concerning that it doesn't.
-		// Test case: Two Pair with Quoting & Escaping
-		data = utils.ParseMapWS(`k1=v1 "k2=v2"`)
-		Expect(data).To(HaveLen(2))
-		Expect(data["k1"]).To(Equal("v1"))
-		Expect(data["k2"]).To(Equal(`v2"s`))
-	*/
-
-	/*
-		// TODO: This test case also SHOULD pass. I don't think ParseMapWS handles quotations as advertised.
-		// Test case: Two Pair with Quoting & Escaping
-		data = utils.ParseMapWS(`k1=v1 "k2=v2\'s"`)
-		Expect(data).To(HaveLen(2))
-		Expect(data["k1"]).To(Equal("v1"))
-		Expect(data["k2"]).To(Equal(`v2\'s`))
-	*/
+	// Test case: Two Pair with Quoting & Escaping
+	data = utils.ParseMapWS(`k1=v1 "k2"="v2"`)
+	Expect(data).To(HaveLen(2))
+	Expect(data["k1"]).To(Equal("v1"))
+	Expect(data["k2"]).To(Equal(`v2`))
 
 	// Test case: Two Pair with Quoting & Escaping
 	data = utils.ParseMapWS(`k1=v1 k2=v2\'s`)

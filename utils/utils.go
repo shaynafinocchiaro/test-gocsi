@@ -130,9 +130,6 @@ func ParseMap(line string) map[string]string {
 	r.TrimLeadingSpace = true
 
 	record, err := r.Read()
-	if err == io.EOF {
-		return nil
-	}
 	if err != nil {
 		panic(err)
 	}
@@ -140,9 +137,6 @@ func ParseMap(line string) map[string]string {
 	data := map[string]string{}
 	for i := range record {
 		p := strings.SplitN(record[i], "=", 2)
-		if len(p) == 0 {
-			continue
-		}
 		k := p[0]
 		var v string
 		if len(p) > 1 {
@@ -400,7 +394,7 @@ func PageVolumes(
 			if !listVolumes() {
 				break
 			}
-			pages++
+			pages++ // TODO: What increments a page? I have tried with 10,000 mock volumes and still no paging happens.
 		}
 	}()
 

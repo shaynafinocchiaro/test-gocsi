@@ -59,6 +59,7 @@ func NewServer() MockServer {
 		s.newVolume("Mock Volume 1", gib100),
 		s.newVolume("Mock Volume 2", gib100),
 		s.newVolume("Mock Volume 3", gib100),
+		s.newVolume("Mock Volume 4", gib100),
 	}
 
 	// add some mock snapshots to start with, too
