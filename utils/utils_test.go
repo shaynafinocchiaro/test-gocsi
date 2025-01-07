@@ -509,7 +509,6 @@ var _ = Describe("AreVolumeCapabilitiesCompatible", func() {
 		out, err := utils.AreVolumeCapabilitiesCompatible(a, b)
 		Ω(out).Should(BeFalse())
 		Ω(err).Should(HaveOccurred())
-
 	})
 })
 
@@ -548,20 +547,6 @@ func TestParseSlice(t *testing.T) {
 	result = utils.ParseSlice(input)
 	Expect(result).To(Equal(expected))
 
-	/*
-		// TODO: Escaped quotes seem to be totally broken in the parse method.
-		// Test case: Values with escaped quotes
-		input = `value1, "value2 \"with quotes\"", "value3"`
-		expected = []string{"value1", `value2 "with quotes"`, "value3"}
-		result = utils.ParseSlice(input)
-		Expect(result).To(Equal(expected))
-
-		// Test case: Values with escaped quotes and whitespace
-		input = `value1, "value2 \"with quotes\" ", " value3 "`
-		expected = []string{"value1", `value2 "with quotes" `, " value3 "}
-		result = utils.ParseSlice(input)
-		Expect(result).To(Equal(expected))
-	*/
 }
 
 func TestPageVolumes(t *testing.T) {
@@ -605,10 +590,6 @@ func TestPageSnapshots(t *testing.T) {
 	// Create a new CSI controller service
 	svc := service.NewClient()
 
-	// Create a mock controller client
-	// TODO: This is the part that is breaking-- our mock controller client is not functional
-	//mockClient := svc
-
 	// Create a context
 	ctx := context.Background()
 
@@ -647,13 +628,14 @@ type ErrorStruct struct {
 func (e *ErrorStruct) Error() string {
 	return fmt.Sprintf("Error %d: %s", e.StatusCode, e.Msg)
 }
+
 func (e *ErrorStruct) GRPCStatus() *grpcstatus.Status {
 	if e == nil || e.StatusCode == 0 {
 		return grpcstatus.New(codes.OK, e.Msg)
 	}
 	return grpcstatus.New(codes.Code(e.StatusCode), e.Msg)
-
 }
+
 func TestIsSuccess(t *testing.T) {
 	RegisterTestingT(t)
 
@@ -675,7 +657,6 @@ func TestIsSuccess(t *testing.T) {
 		StatusCode: http.StatusOK,
 	}
 	Expect(utils.IsSuccess(&response, http.StatusOK)).To(BeNil())
-
 }
 
 func TestSimple(t *testing.T) {
