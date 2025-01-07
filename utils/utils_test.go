@@ -568,6 +568,8 @@ func TestPageVolumes(t *testing.T) {
 		select {
 		case v, ok := <-cvol:
 			if !ok {
+				Expect(err).To(BeNil())
+				Expect(vols).To(HaveLen(4))
 				return
 			}
 			vols = append(vols, v)
@@ -579,8 +581,6 @@ func TestPageVolumes(t *testing.T) {
 		}
 	}
 
-	Expect(err).To(BeNil())
-	Expect(vols).To(HaveLen(4))
 }
 
 func TestPageSnapshots(t *testing.T) {
@@ -603,6 +603,8 @@ func TestPageSnapshots(t *testing.T) {
 		select {
 		case v, ok := <-csnap:
 			if !ok {
+				Expect(err).To(BeNil())
+				Expect(snaps).To(HaveLen(4))
 				return
 			}
 			snaps = append(snaps, v)
@@ -613,9 +615,6 @@ func TestPageSnapshots(t *testing.T) {
 			err = e
 		}
 	}
-
-	Expect(err).To(BeNil())
-	Expect(snaps).To(HaveLen(3))
 }
 
 // struct for error injection testing with GRPCStatus
