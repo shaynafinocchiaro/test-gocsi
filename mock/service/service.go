@@ -59,16 +59,10 @@ func NewServer() MockServer {
 		s.newVolume("Mock Volume 1", gib100),
 		s.newVolume("Mock Volume 2", gib100),
 		s.newVolume("Mock Volume 3", gib100),
-		s.newVolume("Mock Volume 4", gib100),
 	}
 
 	// add some mock snapshots to start with, too
-	s.snaps = []csi.Snapshot{
-		s.newSnapshot("Mock Snapshot 1", gib100),
-		s.newSnapshot("Mock Snapshot 2", gib100),
-		s.newSnapshot("Mock Snapshot 3", gib100),
-		s.newSnapshot("Mock Snapshot 4", gib100),
-	}
+	s.snaps = []csi.Snapshot{}
 	return s
 }
 

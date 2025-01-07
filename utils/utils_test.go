@@ -569,7 +569,7 @@ func TestPageVolumes(t *testing.T) {
 		case v, ok := <-cvol:
 			if !ok {
 				Expect(err).To(BeNil())
-				Expect(vols).To(HaveLen(4))
+				Expect(vols).To(HaveLen(3)) // the mock service is initialized to have 3 volumes
 				return
 			}
 			vols = append(vols, v)
@@ -591,6 +591,9 @@ func TestPageSnapshots(t *testing.T) {
 	// Create a context
 	ctx := context.Background()
 
+	// The mock service is initialized to have zero snapshots, so, create one
+	svc.CreateSnapshot(ctx, &csi.CreateSnapshotRequest{SourceVolumeId: "1", Name: "snapshot0"})
+
 	// Create a list volumes request
 	req := csi.ListSnapshotsRequest{}
 
@@ -603,7 +606,7 @@ func TestPageSnapshots(t *testing.T) {
 		case v, ok := <-csnap:
 			if !ok {
 				Expect(err).To(BeNil())
-				Expect(snaps).To(HaveLen(4))
+				Expect(snaps).To(HaveLen(1))
 				return
 			}
 			snaps = append(snaps, v)
