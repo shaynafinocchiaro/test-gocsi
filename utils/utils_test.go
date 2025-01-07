@@ -620,7 +620,7 @@ func TestPageSnapshots(t *testing.T) {
 
 // struct for error injection testing with GRPCStatus
 type ErrorStruct struct {
-	StatusCode int
+	StatusCode uint32
 	Msg        string
 }
 
