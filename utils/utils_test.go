@@ -546,7 +546,6 @@ func TestParseSlice(t *testing.T) {
 	expected = []string{"value1", "value2 ", " value3 "}
 	result = utils.ParseSlice(input)
 	Expect(result).To(Equal(expected))
-
 }
 
 func TestPageVolumes(t *testing.T) {
@@ -633,7 +632,7 @@ func (e *ErrorStruct) GRPCStatus() *grpcstatus.Status {
 	if e == nil || e.StatusCode == 0 {
 		return grpcstatus.New(codes.OK, e.Msg)
 	}
-	return grpcstatus.New(codes.Code(e.StatusCode), e.Msg)
+	return grpcstatus.New(codes.Code(uint32(e.StatusCode)), e.Msg)
 }
 
 func TestIsSuccess(t *testing.T) {
