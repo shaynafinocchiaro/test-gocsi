@@ -293,7 +293,7 @@ var _ = Describe("Controller", func() {
 					Ω(vol).Should(BeNil())
 					Ω(err).Should(ΣCM(
 						codes.InvalidArgument,
-						"exceeds size limit: Parameters[class]=: max=128, size=129"))
+						"exceeds size limit: Parameters[class]: max=128, size=129"))
 				})
 			})
 			Context("Invalid Params Map", func() {
@@ -339,6 +339,7 @@ var _ = Describe("Controller", func() {
 				wg                   sync.WaitGroup
 				count                int
 				opPendingErrorOccurs bool
+				mu                   sync.Mutex
 			)
 
 			// Verify that the newly created volume increases
@@ -358,9 +359,11 @@ var _ = Describe("Controller", func() {
 						defer GinkgoRecover()
 						if !validateNewVolumeResult(
 							createNewVolumeWithResult()) {
+							mu.Lock()
 							once.Do(func() {
 								opPendingErrorOccurs = true
 							})
+							mu.Unlock()
 						}
 					}
 				)
@@ -374,11 +377,13 @@ var _ = Describe("Controller", func() {
 					go func(i int) {
 						defer GinkgoRecover()
 						start := i * bucketSize
+						mu.Lock()
 						for j := start; j < start+bucketSize && j < count; j++ {
 							// fmt.Fprintf(
 							//	GinkgoWriter, "bucket=%d, index=%d\n", i, j)
 							go worker()
 						}
+						mu.Unlock()
 					}(i)
 				}
 			}
@@ -399,8 +404,10 @@ var _ = Describe("Controller", func() {
 			})
 
 			AfterEach(func() {
+				mu.Lock()
 				count = 0
 				opPendingErrorOccurs = false
+				mu.Unlock()
 			})
 
 			Context("x1", func() {

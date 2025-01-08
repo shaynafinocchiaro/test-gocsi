@@ -1,13 +1,19 @@
 package utils_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math"
+	"net/http"
 	"os"
+	"testing"
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
+	"github.com/dell/gocsi/mock/service"
 	"github.com/dell/gocsi/utils"
+	"google.golang.org/grpc/codes"
+	grpcstatus "google.golang.org/grpc/status"
 )
 
 var _ = Describe("ParseMethod", func() {
@@ -178,10 +184,10 @@ var _ = Describe("GetCSIEndpoint", func() {
 					"open %[1]s: no such file or directory",
 				expEndpoint)))
 		}
-		Context("Xtcp5://localhost:5000", func() {
+		Context("Xtcp5:/localhost:5000", func() {
 			It("Should Be An Invalid Implied Sock File", shouldBeInvalid)
 		})
-		Context("Xunixpcket://path/to/sock.sock", func() {
+		Context("Xunixpcket:/path/to/sock.sock", func() {
 			It("Should Be An Invalid Implied Sock File", shouldBeInvalid)
 		})
 	})
@@ -334,6 +340,16 @@ var _ = Describe("CompareVolume", func() {
 		a.VolumeContext = map[string]string{"key": "val"}
 		Ω(utils.CompareVolume(a, b)).Should(Equal(0))
 	})
+	It("Volume context check", func() {
+		// volume IDs must be equal, capacityBytes must be equal,
+		// length of volume contexts must be equal, and then, finally,
+		// the volume context for one key-value pair in B must be larger
+		b := csi.Volume{VolumeId: "0"}
+		a := csi.Volume{VolumeId: "0"}
+		a.VolumeContext = map[string]string{"key1": "1"}
+		b.VolumeContext = map[string]string{"key1": "2"}
+		Ω(utils.CompareVolume(a, b)).Should(Equal(-1))
+	})
 })
 
 var _ = Describe("EqualVolumeCapability", func() {
@@ -410,6 +426,13 @@ var _ = Describe("EqualVolumeCapability", func() {
 		Ω(utils.EqualVolumeCapability(a, b)).Should(BeFalse())
 		bAT.Mount.MountFlags = nil
 		Ω(utils.EqualVolumeCapability(a, b)).Should(BeTrue())
+
+		// error test: a is non-nil, b is nil
+		a.AccessMode = &csi.VolumeCapability_AccessMode{
+			Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+		}
+		b.AccessMode = nil
+		Ω(utils.EqualVolumeCapability(a, b)).Should(BeFalse())
 	})
 })
 
@@ -459,5 +482,369 @@ var _ = Describe("AreVolumeCapabilitiesCompatible", func() {
 			Block: &csi.VolumeCapability_BlockVolume{},
 		}
 		Ω(utils.AreVolumeCapabilitiesCompatible(a, b)).Should(BeTrue())
+
+		// make len(a) > len(b) for an error test
+		a = append(a, &csi.VolumeCapability{
+			AccessMode: &csi.VolumeCapability_AccessMode{
+				Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+			},
+			AccessType: &csi.VolumeCapability_Mount{
+				Mount: &csi.VolumeCapability_MountVolume{
+					FsType:     "ext4",
+					MountFlags: []string{"rw"},
+				},
+			},
+		})
+		a = append(a, &csi.VolumeCapability{
+			AccessMode: &csi.VolumeCapability_AccessMode{
+				Mode: csi.VolumeCapability_AccessMode_MULTI_NODE_MULTI_WRITER,
+			},
+			AccessType: &csi.VolumeCapability_Mount{
+				Mount: &csi.VolumeCapability_MountVolume{
+					FsType:     "ext4",
+					MountFlags: []string{"rw"},
+				},
+			},
+		})
+		out, err := utils.AreVolumeCapabilitiesCompatible(a, b)
+		Ω(out).Should(BeFalse())
+		Ω(err).Should(HaveOccurred())
 	})
 })
+
+func TestParseSlice(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: One value
+	input := "value1"
+	expected := []string{"value1"}
+	result := utils.ParseSlice(input)
+	Expect(result).To(Equal(expected))
+
+	// Test case: Multiple values
+	input = "value1, value2, value3"
+	expected = []string{"value1", "value2", "value3"}
+	result = utils.ParseSlice(input)
+	Expect(result).To(Equal(expected))
+
+	// Test case: Empty string
+	input = ""
+	expected = []string{}
+	result = utils.ParseSlice(input)
+	Expect(len(result)).To(Equal(0))
+
+	// Test case: Values with whitespace
+	// TODO: I think it's supposed to trim both trailing and leading whitespace.
+	// It's currently only trimming leading whitespace.. except for the last item.
+	input = " value1 , value2 , value3 "
+	expected = []string{"value1 ", "value2 ", "value3"}
+	result = utils.ParseSlice(input)
+	Expect(result).To(Equal(expected))
+
+	// Test case: Values with quotes
+	input = `value1, "value2 ", " value3 "`
+	expected = []string{"value1", "value2 ", " value3 "}
+	result = utils.ParseSlice(input)
+	Expect(result).To(Equal(expected))
+}
+
+func TestPageVolumes(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Create a new CSI controller service
+	svc := service.NewClient()
+
+	// Create a context
+	ctx := context.Background()
+
+	// Create a list volumes request
+	req := csi.ListVolumesRequest{}
+
+	// Call the PageVolumes function
+	cvol, cerr := utils.PageVolumes(ctx, svc, req)
+	var err error
+	vols := []csi.Volume{}
+	for {
+		select {
+		case v, ok := <-cvol:
+			if !ok {
+				Expect(err).To(BeNil())
+				Expect(vols).To(HaveLen(3)) // the mock service is initialized to have 3 volumes
+				return
+			}
+			vols = append(vols, v)
+		case e, ok := <-cerr:
+			if !ok {
+				return
+			}
+			err = e
+		}
+	}
+}
+
+func TestPageSnapshots(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Create a new CSI controller service
+	svc := service.NewClient()
+
+	// Create a context
+	ctx := context.Background()
+
+	// The mock service is initialized to have zero snapshots, so, create one
+	svc.CreateSnapshot(ctx, &csi.CreateSnapshotRequest{SourceVolumeId: "1", Name: "snapshot0"})
+
+	// Create a list volumes request
+	req := csi.ListSnapshotsRequest{}
+
+	// Call the PageSnapshots function
+	csnap, cerr := utils.PageSnapshots(ctx, svc, req)
+	snaps := []csi.Snapshot{}
+	var err error
+	for {
+		select {
+		case v, ok := <-csnap:
+			if !ok {
+				Expect(err).To(BeNil())
+				Expect(snaps).To(HaveLen(1))
+				return
+			}
+			snaps = append(snaps, v)
+		case e, ok := <-cerr:
+			if !ok {
+				return
+			}
+			err = e
+		}
+	}
+}
+
+// struct for error injection testing with GRPCStatus
+type ErrorStruct struct {
+	StatusCode uint32
+	Msg        string
+}
+
+func (e *ErrorStruct) Error() string {
+	return fmt.Sprintf("Error %d: %s", e.StatusCode, e.Msg)
+}
+
+func (e *ErrorStruct) GRPCStatus() *grpcstatus.Status {
+	if e == nil || e.StatusCode == 0 {
+		return grpcstatus.New(codes.OK, e.Msg)
+	}
+	return grpcstatus.New(codes.Code(uint32(e.StatusCode)), e.Msg)
+}
+
+func TestIsSuccess(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: Successful response - nil err
+	Expect(utils.IsSuccess(nil)).To(BeNil())
+
+	// Test case: Non-successful response
+	response := ErrorStruct{
+		StatusCode: http.StatusNotFound,
+	}
+	Expect(utils.IsSuccess(&response)).To(Not(BeNil()))
+
+	// Test case: Successful response - GRPC OK
+	response = ErrorStruct{StatusCode: 0}
+	Expect(utils.IsSuccess(&response)).To(BeNil())
+
+	// Test case: Successful response - acceptable opt
+	response = ErrorStruct{
+		StatusCode: http.StatusOK,
+	}
+	Expect(utils.IsSuccess(&response, http.StatusOK)).To(BeNil())
+}
+
+func TestSimple(t *testing.T) {
+	RegisterTestingT(t)
+}
+
+func TestParseMapWS(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: One Pair
+	data := utils.ParseMapWS("k1=v1")
+	Expect(data).To(HaveLen(1))
+	Expect(data["k1"]).To(Equal("v1"))
+
+	// Test case: Empty Line
+	data = utils.ParseMapWS("")
+	Expect(data).To(HaveLen(0))
+
+	// Test case: Key Sans Value
+	data = utils.ParseMapWS("k1")
+	Expect(data).To(HaveLen(0)) // should be empty if no key/value pairs
+
+	// Test case: Two Pair
+	data = utils.ParseMapWS("k1=v1 k2=v2")
+	Expect(data).To(HaveLen(2))
+	Expect(data["k1"]).To(Equal("v1"))
+	Expect(data["k2"]).To(Equal("v2"))
+
+	// Test case: Two Pair with Quoting & Escaping
+	data = utils.ParseMapWS(`k1=v1 "k2"="v2"`)
+	Expect(data).To(HaveLen(2))
+	Expect(data["k1"]).To(Equal("v1"))
+	Expect(data["k2"]).To(Equal(`v2`))
+
+	// Test case: Two Pair with Quoting & Escaping
+	data = utils.ParseMapWS(`k1=v1 k2=v2\'s`)
+	Expect(data).To(HaveLen(2))
+	Expect(data["k1"]).To(Equal("v1"))
+	Expect(data["k2"]).To(Equal(`v2's`))
+}
+
+func TestNewMountCapability(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: Single mount capability
+	expected := &csi.VolumeCapability{
+		AccessMode: &csi.VolumeCapability_AccessMode{
+			Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+		},
+		AccessType: &csi.VolumeCapability_Mount{
+			Mount: &csi.VolumeCapability_MountVolume{
+				FsType:     "ext4",
+				MountFlags: []string{"ro"},
+			},
+		},
+	}
+
+	actual := utils.NewMountCapability(
+		csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+		"ext4",
+		"ro",
+	)
+
+	Expect(actual).To(Equal(expected))
+}
+
+func TestNewBlockCapability(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: Single block capability
+	expected := &csi.VolumeCapability{
+		AccessMode: &csi.VolumeCapability_AccessMode{
+			Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+		},
+		AccessType: &csi.VolumeCapability_Block{
+			Block: &csi.VolumeCapability_BlockVolume{},
+		},
+	}
+
+	actual := utils.NewBlockCapability(
+		csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+	)
+
+	Expect(actual).To(Equal(expected))
+}
+
+func TestEqualVolume(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: Equal volumes
+	a := &csi.Volume{
+		VolumeId:      "1",
+		CapacityBytes: 100,
+		VolumeContext: map[string]string{
+			"name": "test",
+		},
+	}
+	b := &csi.Volume{
+		VolumeId:      "1",
+		CapacityBytes: 100,
+		VolumeContext: map[string]string{
+			"name": "test",
+		},
+	}
+	Ω(utils.EqualVolume(a, b)).Should(BeTrue())
+
+	// Test case: Different volume IDs
+	a.VolumeId = "2"
+	Ω(utils.EqualVolume(a, b)).Should(BeFalse())
+
+	// Test case: Different capacity bytes
+	a.VolumeId = "1"
+	a.CapacityBytes = 200
+	Ω(utils.EqualVolume(a, b)).Should(BeFalse())
+
+	// Test case: Different volume context
+	a.CapacityBytes = 100
+	a.VolumeContext = map[string]string{
+		"name": "test2",
+	}
+	Ω(utils.EqualVolume(a, b)).Should(BeFalse())
+
+	// Test case: One volume is nil
+	a = nil
+	Ω(utils.EqualVolume(a, b)).Should(BeFalse())
+
+	// Test case: Both volumes are nil
+	b = nil
+	Ω(utils.EqualVolume(a, b)).Should(BeFalse())
+}
+
+func TestGetCSIEndpointListener(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: TCP endpoint
+	os.Setenv("CSI_ENDPOINT", "tcp://localhost:5000")
+	lis, err := utils.GetCSIEndpointListener()
+	Ω(err).ShouldNot(HaveOccurred())
+	Ω(lis.Addr().Network()).Should(Equal("tcp"))
+	Ω(lis.Addr().String()).Should(Equal("127.0.0.1:5000"))
+
+	// Test case: Invalid endpoint
+	os.Setenv("CSI_ENDPOINT", "invalid://endpoint")
+	lis, err = utils.GetCSIEndpointListener()
+	Ω(err).Should(HaveOccurred())
+	Ω(lis).Should(BeNil())
+
+	// Test case: Empty endpoint
+	os.Setenv("CSI_ENDPOINT", "")
+	lis, err = utils.GetCSIEndpointListener()
+	Ω(err).Should(HaveOccurred())
+	Ω(lis).Should(BeNil())
+}
+
+func TestIsVolumeCapabilityCompatible(t *testing.T) {
+	RegisterTestingT(t)
+
+	// Test case: Compatible volume capabilities
+	a := &csi.VolumeCapability{
+		AccessMode: &csi.VolumeCapability_AccessMode{
+			Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+		},
+		AccessType: &csi.VolumeCapability_Block{
+			Block: &csi.VolumeCapability_BlockVolume{},
+		},
+	}
+	b := []*csi.VolumeCapability{
+		{
+			AccessMode: &csi.VolumeCapability_AccessMode{
+				Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+			},
+			AccessType: &csi.VolumeCapability_Block{
+				Block: &csi.VolumeCapability_BlockVolume{},
+			},
+		},
+		{
+			AccessMode: &csi.VolumeCapability_AccessMode{
+				Mode: csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER,
+			},
+			AccessType: &csi.VolumeCapability_Mount{
+				Mount: &csi.VolumeCapability_MountVolume{
+					FsType:     "ext4",
+					MountFlags: []string{"rw"},
+				},
+			},
+		},
+	}
+	out, err := utils.IsVolumeCapabilityCompatible(a, b)
+	Ω(out).Should(BeTrue())
+	Ω(err).Should(BeNil())
+}
