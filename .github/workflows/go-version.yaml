@@ -17,6 +17,6 @@ on:  # yamllint disable-line rule:truthy
 jobs:
   # go version update
   go-version-update:
-    uses: shayna-finocchiaro/test-common-github-actions/.github/workflows/go-version-workflow.yaml@main
+    uses: shaynafinocchiaro/test-common-github-actions/.github/workflows/go-version-workflow.yaml@main
     name: Go Version Update
     secrets: inherit
