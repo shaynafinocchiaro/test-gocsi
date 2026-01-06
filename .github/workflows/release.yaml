@@ -25,7 +25,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
   csm-release:
     name: Release Go Client Libraries
-    uses: dell/common-github-actions/.github/workflows/csm-release-libs.yaml@main
+    uses: shaynafinocchiaro/common-github-actions/.github/workflows/csm-release-libs.yaml@main
     with:
       option: ${{ inputs.option || 'minor' }}
       version: ${{ inputs.version || '' }}
